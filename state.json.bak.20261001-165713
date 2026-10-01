@@ -1,0 +1,32 @@
+{
+  "updated_at": "2026-10-01 13:18:54",
+  "node_file": "/home/dragonmchen.guest/coding/python/xray-node-sync/node.txt",
+  "managed_tags": [
+    "proxy_XX_mz_hkychina_com",
+    "proxy_FR_172_64_146_66",
+    "proxy_XX_cf_877774_xyz",
+    "proxy_XX_91_240_86_70",
+    "proxy_XX_91_240_86_70_2",
+    "proxy_FR_104_17_150_17",
+    "proxy_XX_104_25_109_237",
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev",
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev_2",
+    "proxy_FR_172_67_79_81",
+    "proxy_XX_103_31_4_10",
+    "proxy_XX_104_16_71_213"
+  ],
+  "latency": {
+    "proxy_XX_mz_hkychina_com": 0.069,
+    "proxy_FR_172_64_146_66": 0.326,
+    "proxy_XX_cf_877774_xyz": 0.344,
+    "proxy_XX_91_240_86_70": 0.54,
+    "proxy_XX_91_240_86_70_2": 0.575,
+    "proxy_FR_104_17_150_17": 0.962,
+    "proxy_XX_104_25_109_237": 1.169,
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev": 1.231,
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev_2": 2.096,
+    "proxy_FR_172_67_79_81": 2.133,
+    "proxy_XX_103_31_4_10": 2.951,
+    "proxy_XX_104_16_71_213": 3.025
+  }
+}

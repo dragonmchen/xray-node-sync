@@ -1,0 +1,22 @@
+{
+  "updated_at": "2026-09-30 21:09:21",
+  "node_file": "/home/dragonmchen.guest/coding/python/xray-node-sync/node.txt",
+  "managed_tags": [
+    "proxy_XX_91_240_86_70",
+    "proxy_IN_139_84_177_239",
+    "proxy_US_169_40_42_168",
+    "proxy_LV_195_123_212_60",
+    "proxy_RU_185_141_227_180",
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev",
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev_2"
+  ],
+  "latency": {
+    "proxy_XX_91_240_86_70": 0.594,
+    "proxy_IN_139_84_177_239": 0.964,
+    "proxy_US_169_40_42_168": 1.206,
+    "proxy_LV_195_123_212_60": 1.714,
+    "proxy_RU_185_141_227_180": 2.23,
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev": 5.061,
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev_2": 5.074
+  }
+}

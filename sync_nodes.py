@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Parse a local subscription file (node.txt), measure which nodes actually
-work and how fast they are, then keep only the fastest ones in the Xray config.
+"""Parse nodes from a local file (node.txt) and/or remote subscriptions, measure
+which nodes actually work and how fast they are, then keep only the fastest ones
+in the Xray config.
 
 Typical workflow (run inside this directory, node.txt sits next to the script):
 
@@ -10,16 +11,32 @@ Typical workflow (run inside this directory, node.txt sits next to the script):
     python3 sync_nodes.py --dry-run              # same as preview.sh
     python3 sync_nodes.py --restart              # same as apply.sh
     python3 sync_nodes.py --keep 50 --workers 32
+    python3 sync_nodes.py -s https://example.com/sub.txt   # 额外拉一个订阅
+
+Node sources are combined and de-duplicated as one pool:
+
+  * the local node file (`-n`, default node.txt) - its `http(s)://` lines are
+    themselves treated as subscription URLs;
+  * every `-s/--subscribe URL` given on the command line (repeatable);
+  * `subscriptions.txt` next to the script, when it exists (one URL per line,
+    `#` comments allowed).
+
+A downloaded subscription may be plain `scheme://` URI lines, a single
+base64 blob of such lines, or a Clash `proxies:` YAML document; all three are
+recognized (see parse_subscription()).
 
 For every node a throwaway Xray instance is started (local SOCKS inbound plus
-that single outbound) and `curl --socks5-hostname 127.0.0.1:<port>
-https://www.gstatic.com/generate_204` is run through it: HTTP 204 means the
-node is usable, and the measured request time is used to rank its speed.
+that single outbound) and `curl --socks5-hostname 127.0.0.1:<port>` is run
+through it against both gstatic and google.com `generate_204` endpoints: only
+when BOTH return 204 the node counts as usable (a gstatic-only hijack node
+would otherwise poison the leastPing balancer), and the slower of the two is
+used to rank its speed.
 """
 
 from __future__ import annotations
 
 import argparse
+import base64
 import concurrent.futures
 import json
 import os
@@ -36,17 +53,33 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_NODE_FILE = os.path.join(SCRIPT_DIR, "node.txt")
 DEFAULT_CONFIG = "/etc/xray/config.json"
 STATE_FILE = os.path.join(SCRIPT_DIR, "state.json")
+DEFAULT_SUB_FILE = os.path.join(SCRIPT_DIR, "subscriptions.txt")
+FETCH_TIMEOUT = 20.0          # seconds allowed per subscription download
+# Local Xray SOCKS inbound: tried as a fallback when a subscription URL is not
+# reachable directly (GitHub raw etc. is often blocked without a proxy).
+FALLBACK_PROXY = "socks5h://127.0.0.1:54321"
 DEFAULT_KEEP = 100          # 只保留最快的前 N 个节点（0 = 不限制）
 DEFAULT_SAMPLES = 2         # 测速时每个节点成功请求的次数（取最快一次）
 XRAY_BIN = "xray"
 ASSET_DIR = "/etc/xray"
-PROBE_URL = "https://www.gstatic.com/generate_204"
+# 双站点探测(2026-10-01): 只测 gstatic 会被"假活"节点骗过 —— 实测 mz.hkychina.com
+# 对 gstatic 秒回 204(0.07s) 却黑掉一切真实流量(劫持/白名单型节点), 且 leastPing
+# 恰好优先选它, 导致走主端口的真实站点全部超时。两个站点都返回 204 才算可用,
+# 计时取两站点中较慢者(更接近真实体感)。
+PROBE_URLS = ("https://www.gstatic.com/generate_204",
+              "https://www.google.com/generate_204")
+PROBE_URL = PROBE_URLS[0]                     # 兼容旧引用(仅用于提示文案)
 PROBE_EXPECTED = "204"
 
 # Protocols Xray can act as a client for. Since Xray 26.3.x, Hysteria 2 is also
 # supported as an outbound: protocol "hysteria" + network "hysteria".
-SUPPORTED_SCHEMES = ("trojan", "vless", "hysteria2")
+# "ss" is Shadowsocks (SIP002 links; outbound protocol name "shadowsocks"),
+# "vmess" is classic VMess. Both verified against xray 26.3.27 via -test.
+SUPPORTED_SCHEMES = ("trojan", "vless", "hysteria2", "vmess", "ss")
 SUPPORTED_NETWORKS = ("ws", "tcp", "xhttp", "hysteria")
+# "" and "none" are the same thing (plaintext, no TLS layer); "reality" needs
+# publicKey (pbk), see build_outbound().
+SUPPORTED_SECURITIES = ("", "none", "tls", "reality")
 
 # Any outbound whose tag starts with "proxy" is picked up by the balancer and
 # the observatory (selector "proxy"), so every proxy_* outbound is fair game for
@@ -58,6 +91,9 @@ PROXY_TAG_RE = re.compile(r"^proxy")
 # Tags created by this script (e.g. proxy_US_104_18_152_144). Hand-written tags
 # such as proxy_sub1_198_41_223_96 or proxy_4_... are deliberately not matched.
 MANAGED_TAG_RE = re.compile(r"^proxy_[A-Z]{2}_")
+
+# Region hint inside a subscription remark: "US_89", "FR|1.9MB/s", "HK_104|…".
+REGION_HINT_RE = re.compile(r"([A-Z]{2})[_|]")
 
 
 # --------------------------------------------------------------------------- #
@@ -81,16 +117,50 @@ def _fix_path(path: str) -> str:
     return path
 
 
+def _recover_params(fragment: str) -> dict:
+    """Recover connection params some subscriptions put in the remark instead.
+
+    e.g. `vless://…@169.40.42.232:443?encryption=none&security=reality&type=tcp
+    #🎗️98@oneclickvpnkeys&sni=yahoo.com&fp=chrome&flow=xtls-rprx-vision&pbk=…`
+    - the real link only spells out security/type while sni/pbk/sid live in the
+    fragment (sometimes behind an embedded "vless://…?"). Without them the node
+    cannot be built at all, so they are recovered best-effort; if the guess is
+    wrong the probe simply fails and the node is dropped.
+    """
+    text = urllib.parse.unquote(fragment)
+    text = text.split("#", 1)[0]          # drop the trailing "…#remark"
+    if "?" in text:                        # embedded copy of a whole URI
+        text = text.split("?", 1)[1]
+    return {key.lower(): value
+            for key, value in urllib.parse.parse_qsl(text, keep_blank_values=True)}
+
+
 def parse_node(line: str):
     """Parse one subscription URI into a normalized node dict (or None)."""
     line = line.strip()
-    if not line or line.startswith("#") or "://" not in line:
+    if not line or line.startswith("#"):
+        return None
+    if line.lower().startswith("vmess://"):
+        # Classic V2Ray share link: vmess://<base64 JSON>, no user@host form.
+        return _parse_vmess(line)
+    if "://" not in line:
         return None
 
     scheme, rest = line.split("://", 1)
     scheme = scheme.lower()
     rest, _, fragment = rest.partition("#")
     body, _, query = rest.partition("?")
+
+    if scheme == "ss" and "@" not in body:
+        # Legacy ss form: the whole body is base64("method:password@host:port").
+        try:
+            expanded = base64.b64decode(_b64_pad(body)).decode("utf-8", "replace")
+        except Exception:
+            return None
+        if "@" not in expanded:
+            return None
+        body, _, query = expanded.partition("?")
+        line = "ss://%s%s" % (body, "#" + fragment if fragment else "")
 
     if "@" not in body:
         return None
@@ -104,9 +174,36 @@ def parse_node(line: str):
     except ValueError:
         return None
 
+    # SIP002 ss://: userinfo is base64(method:password) — or plain method:password.
+    ss_method = ""
+    if scheme == "ss":
+        candidate = urllib.parse.unquote(user)
+        decoded = ""
+        if re.fullmatch(r"[A-Za-z0-9+/=_-]+", candidate or ""):
+            for decoder in (base64.urlsafe_b64decode, base64.b64decode):
+                try:
+                    decoded = decoder(_b64_pad(candidate)).decode("utf-8", "replace")
+                except Exception:
+                    decoded = ""
+                if ":" in decoded:
+                    break
+                decoded = ""
+        if ":" in decoded:
+            ss_method, user = decoded.split(":", 1)
+        elif ":" in candidate:
+            ss_method, user = candidate.split(":", 1)
+        else:
+            return None
+        user = urllib.parse.unquote(user)
+
     params = {}
     for key, value in urllib.parse.parse_qsl(query, keep_blank_values=True):
         params[key.lower()] = value
+    # Links whose params live in the remark (see _recover_params) only mention
+    # security/type in the query; fill in what is missing, never overwrite.
+    for key, value in _recover_params(fragment).items():
+        if value and not params.get(key):
+            params[key] = value
 
     security = (params.get("security") or "").lower()
     network = (params.get("type") or "tcp").lower()
@@ -114,6 +211,12 @@ def parse_node(line: str):
         # Hysteria2 links carry no transport/security params: it is always
         # QUIC + TLS, which in Xray means network "hysteria".
         network, security = "hysteria", "tls"
+
+    # xhttp "mode": Xray's own default is "auto", so an explicit mode=auto is
+    # normalized to "" and the key never depends on how the link spelled it.
+    mode = (params.get("mode") or "").lower()
+    if mode == "auto":
+        mode = ""
 
     return {
         "scheme": scheme,
@@ -125,12 +228,21 @@ def parse_node(line: str):
         "network": network,
         "path": _fix_path(params.get("path", "/")),
         "host": params.get("host", ""),
+        # xhttp only: stream-up/packet-up must be sent as-is.
+        "mode": mode,
         "alpn": _uniq_low([a.strip() for a in params.get("alpn", "").split(",") if a.strip()]),
         "fp": params.get("fp", ""),
         "flow": params.get("flow", ""),
+        # REALITY (vless/trojan over tcp): publicKey authenticates the handshake,
+        # shortId/spiderX are optional.
+        "pbk": params.get("pbk", ""),
+        "sid": params.get("sid", ""),
+        "spx": params.get("spx", ""),
         # Both spellings appear in the wild (hysteria2 links use "insecure").
         "insecure": (params.get("insecure") or params.get("allowinsecure") or "")
                     in ("1", "true"),
+        # Shadowsocks only: cipher from the SIP002 userinfo.
+        "ss_method": ss_method,
         "label": urllib.parse.unquote(fragment).strip(),
         "raw": line,
     }
@@ -147,8 +259,13 @@ def node_key(node):
         node["network"],
         node["path"],
         node["host"],
+        node["mode"],
         ",".join(node["alpn"]),
         node["fp"],
+        node["pbk"],
+        node["sid"],
+        node["flow"],
+        node.get("ss_method", ""),
     )
 
 
@@ -158,29 +275,201 @@ def node_supported(node):
         return "protocol not supported by Xray (%s)" % node["scheme"]
     if node["network"] not in SUPPORTED_NETWORKS:
         return "transport not supported here (%s)" % node["network"]
-    if node["security"] not in ("", "tls"):
+    if node["security"] not in SUPPORTED_SECURITIES:
         return "security not supported here (%s)" % node["security"]
+    if node["security"] == "reality":
+        if node["scheme"] not in ("vless", "trojan"):
+            return "reality is only supported for vless/trojan (%s)" % node["scheme"]
+        if not node["pbk"]:
+            return "reality without publicKey (pbk)"
     return None
 
 
 def load_nodes(node_file):
     """Read + de-duplicate nodes; returns (nodes, skipped list of (reason, label))."""
-    nodes, skipped, seen = [], [], set()
     with open(node_file, encoding="utf-8", errors="replace") as fh:
-        for line in fh:
-            node = parse_node(line)
-            if node is None:
-                continue
-            reason = node_supported(node)
-            if reason:
-                skipped.append((reason, node["label"] or node["raw"][:60]))
-                continue
-            key = node_key(node)
-            if key in seen:
-                continue
-            seen.add(key)
-            nodes.append(node)
+        return load_nodes_lines(fh.readlines())
+
+
+def load_nodes_lines(lines):
+    """Same as load_nodes() but from an in-memory line list (subscription text)."""
+    nodes, skipped, seen = [], [], set()
+    for line in lines:
+        node = parse_node(line)
+        if node is None:
+            continue
+        reason = node_supported(node)
+        if reason:
+            skipped.append((reason, node["label"] or node["raw"][:60]))
+            continue
+        key = node_key(node)
+        if key in seen:
+            continue
+        seen.add(key)
+        nodes.append(node)
     return nodes, skipped
+
+
+# --------------------------------------------------------------------------- #
+# subscription downloads: plain URI list / base64 blob / Clash YAML
+# --------------------------------------------------------------------------- #
+def fetch_subscription(url):
+    """Download one subscription; direct first, then via the local Xray SOCKS.
+
+    GitHub raw and friends are often unreachable from CN networks directly,
+    which is exactly what the running Xray (FALLBACK_PROXY) is there for.
+    Returns the body text, or None when both attempts fail.
+    """
+    for extra in ([], ["-x", FALLBACK_PROXY]):
+        try:
+            result = subprocess.run(
+                ["curl", "-sL", "--max-time", str(FETCH_TIMEOUT), "-A",
+                 "clash-verge/v1.7.7"] + extra + [url],
+                capture_output=True, timeout=FETCH_TIMEOUT + 5,
+            )
+        except subprocess.TimeoutExpired:
+            continue
+        if result.returncode == 0:
+            text = result.stdout.decode("utf-8", "replace")
+            if text.strip():
+                return text
+    return None
+
+
+def _b64_pad(text: str) -> str:
+    return text + "=" * (-len(text) % 4)
+
+
+def extract_uri_lines(text: str) -> list:
+    """Subscription body -> share-URI lines (plain list or whole-body base64)."""
+    if "://" in text:
+        lines = [line.strip() for line in text.splitlines()
+                 if line.strip() and not line.strip().startswith("#")
+                 and "://" in line]
+        if lines:
+            return lines
+    compact = "".join(text.split())
+    if compact and re.fullmatch(r"[A-Za-z0-9+/=_-]+", compact):
+        for decoder in (base64.urlsafe_b64decode, base64.b64decode):
+            try:
+                decoded = decoder(_b64_pad(compact)).decode("utf-8", "replace")
+            except Exception:
+                continue
+            if "://" not in decoded:
+                continue
+            return [line.strip() for line in decoded.splitlines()
+                    if line.strip() and "://" in line]
+    return []
+
+
+def _parse_vmess(line: str):
+    """vmess://<base64 JSON> -> node dict (the classic V2Ray share format)."""
+    try:
+        payload = base64.b64decode(
+            _b64_pad(line[len("vmess://"):].strip())).decode("utf-8", "replace")
+        data = json.loads(payload)
+    except Exception:
+        return None
+    if not isinstance(data, dict) or not data.get("add"):
+        return None
+    try:
+        port = int(str(data.get("port") or 0).strip() or 0)
+    except ValueError:
+        return None
+    if not (0 < port < 65536):
+        return None
+    return {
+        "scheme": "vmess",
+        "user": str(data.get("id") or ""),
+        "address": str(data["add"]).strip(),
+        "port": port,
+        "security": "tls" if str(data.get("tls") or "").lower() == "tls" else "",
+        "sni": str(data.get("sni") or data.get("host") or ""),
+        "network": (str(data.get("net") or "tcp") or "tcp").lower(),
+        "path": _fix_path(str(data.get("path") or "/")),
+        "host": str(data.get("host") or ""),
+        "mode": "",
+        "alpn": _uniq_low([a.strip() for a in str(data.get("alpn") or "").split(",")
+                           if a.strip()]),
+        "fp": str(data.get("fp") or ""),
+        "flow": str(data.get("flow") or ""),
+        "pbk": "", "sid": "", "spx": "",
+        "insecure": False,
+        "label": str(data.get("ps") or ""),
+        "raw": line,
+    }
+
+
+def parse_clash_proxy(proxy: dict):
+    """One Clash `proxies:` entry -> node dict (or None if unmodelable)."""
+    ptype = str(proxy.get("type") or "").lower()
+    if ptype not in SUPPORTED_SCHEMES:
+        return None
+    address = str(proxy.get("server") or "").strip()
+    try:
+        port = int(proxy.get("port") or 0)
+    except (TypeError, ValueError):
+        return None
+    if not address or not (0 < port < 65536):
+        return None
+
+    network = str(proxy.get("network") or "tcp").lower()
+    security, sni = "", str(proxy.get("servername") or proxy.get("sni") or "")
+    reality = proxy.get("reality-opts") or {}
+    if ptype == "hysteria2":
+        network, security = "hysteria", "tls"
+    elif reality.get("public-key"):
+        security = "reality"
+    elif proxy.get("tls"):
+        security = "tls"
+
+    if ptype in ("vless", "vmess"):
+        user = str(proxy.get("uuid") or "")
+    else:  # trojan / ss / hysteria2
+        user = str(proxy.get("password") or proxy.get("auth") or "")
+
+    ws = proxy.get("ws-opts") or {}
+    headers = ws.get("headers") or {}
+    alpn = proxy.get("alpn") or []
+    if isinstance(alpn, str):
+        alpn = [alpn]
+    return {
+        "scheme": ptype,
+        "user": user,
+        "address": address,
+        "port": port,
+        "security": security,
+        "sni": sni,
+        "network": network,
+        "path": _fix_path(str(ws.get("path") or "/")),
+        "host": str(headers.get("Host") or headers.get("host") or ""),
+        "mode": "",
+        "alpn": _uniq_low([str(a).strip() for a in alpn if str(a).strip()]),
+        "fp": str(proxy.get("client-fingerprint") or ""),
+        "flow": str(proxy.get("flow") or ""),
+        "pbk": str(reality.get("public-key") or ""),
+        "sid": str(reality.get("short-id") or ""),
+        "spx": "",
+        "insecure": bool(proxy.get("skip-cert-verify")),
+        "ss_method": str(proxy.get("cipher") or "") if ptype == "ss" else "",
+        "label": str(proxy.get("name") or ""),
+        "raw": address,
+    }
+
+
+def parse_subscription(text: str) -> list:
+    """Subscription body -> node dicts: Clash YAML, plain URI list or base64."""
+    if re.search(r"^proxies\s*:", text, re.M):
+        try:
+            import yaml
+            data = yaml.safe_load(text)
+        except Exception:
+            data = None
+        proxies = data.get("proxies") if isinstance(data, dict) else None
+        if isinstance(proxies, list):
+            return [node for proxy in proxies
+                    if isinstance(proxy, dict) and (node := parse_clash_proxy(proxy))]
+    return [node for line in extract_uri_lines(text) if (node := parse_node(line))]
 
 
 # --------------------------------------------------------------------------- #
@@ -189,6 +478,12 @@ def load_nodes(node_file):
 def geo_tag(node) -> str:
     """Short region hint taken from the fragment, e.g. 'US', 'HK'."""
     label = node["label"]
+    # Remarks that embed a copy of the URI (see _recover_params) end with the
+    # real hint ("🇺🇸US_89|1.4MB/s|…"); the generic scan below would happily read
+    # the channel name "oneclickvpnkeys" as "ON" instead.
+    match = REGION_HINT_RE.search(label.split("#")[-1])
+    if match:
+        return match.group(1)
     idx = 0
     while idx < len(label) and not (label[idx].isascii() and label[idx].isalpha()):
         idx += 1
@@ -221,14 +516,26 @@ def build_outbound(node, tag):
             "streamSettings": stream,
             "tag": tag,
         }
-    if node["scheme"] == "trojan":
+    if node["scheme"] == "ss":
+        # Xray's client protocol is "shadowsocks"; method+password live in the
+        # server entry (SIP002 userinfo was split at parse time).
+        settings = {"servers": [{
+            "address": address, "port": node["port"],
+            "method": node.get("ss_method") or "aes-128-gcm",
+            "password": node["user"],
+        }]}
+    elif node["scheme"] == "trojan":
         settings = {"servers": [{
             "address": address, "port": node["port"], "password": node["user"],
         }]}
-    else:  # vless
-        user = {"id": node["user"], "encryption": "none"}
-        if node["flow"]:
-            user["flow"] = node["flow"]
+    else:  # vless / vmess
+        user = {"id": node["user"]}
+        if node["scheme"] == "vmess":
+            user["security"] = "auto"
+        else:
+            user["encryption"] = "none"
+            if node["flow"]:
+                user["flow"] = node["flow"]
         settings = {"vnext": [{
             "address": address, "port": node["port"], "users": [user],
         }]}
@@ -244,9 +551,28 @@ def build_outbound(node, tag):
         xhttp = {"path": node["path"]}
         if node["host"]:
             xhttp["host"] = node["host"]
+        if node["mode"]:
+            # stream-up / packet-up must reach the server verbatim; "" = Xray's
+            # default ("auto"), which is what the link's mode=auto means.
+            xhttp["mode"] = node["mode"]
         stream["xhttpSettings"] = xhttp
 
-    if node["security"] == "tls":
+    if node["security"] == "reality":
+        # REALITY: TLS-shaped handshake signed with the server's key pair. The
+        # client only needs publicKey (+ optional shortId); uTLS fingerprint is
+        # required by Xray and defaults to chrome when the link omits fp.
+        reality = {
+            "serverName": node["sni"] or node["host"] or address,
+            "fingerprint": node["fp"] or "chrome",
+            "publicKey": node["pbk"],
+        }
+        if node["sid"]:
+            reality["shortId"] = node["sid"]
+        if node["spx"]:
+            reality["spiderX"] = node["spx"]
+        stream["security"] = "reality"
+        stream["realitySettings"] = reality
+    elif node["security"] == "tls":
         tls = {"serverName": node["sni"] or node["host"] or address}
         if node["fp"]:
             tls["fingerprint"] = node["fp"]
@@ -258,8 +584,9 @@ def build_outbound(node, tag):
         stream["security"] = "tls"
         stream["tlsSettings"] = tls
 
+    protocol = {"ss": "shadowsocks"}.get(node["scheme"], node["scheme"])
     return {
-        "protocol": node["scheme"],
+        "protocol": protocol,
         "settings": settings,
         "streamSettings": stream,
         "tag": tag,
@@ -270,13 +597,20 @@ def outbound_key(outbound):
     """Same identity as node_key() but for an already-built outbound."""
     protocol = outbound.get("protocol", "")
     stream = outbound.get("streamSettings") or {}
-    address = port = user = ""
+    address = port = user = method = ""
     if protocol == "trojan":
         servers = (outbound.get("settings") or {}).get("servers") or []
         if servers:
             address = servers[0].get("address", "")
             port = str(servers[0].get("port", ""))
             user = servers[0].get("password", "")
+    elif protocol == "shadowsocks":
+        servers = (outbound.get("settings") or {}).get("servers") or []
+        if servers:
+            address = servers[0].get("address", "")
+            port = str(servers[0].get("port", ""))
+            user = servers[0].get("password", "")
+            method = servers[0].get("method", "")
     elif protocol in ("vless", "vmess"):
         vnext = (outbound.get("settings") or {}).get("vnext") or []
         if vnext:
@@ -293,19 +627,41 @@ def outbound_key(outbound):
     network = stream.get("network", "tcp")
     sub = stream.get("wsSettings") or stream.get("xhttpSettings") or {}
     host = (sub.get("headers") or {}).get("Host") or sub.get("host", "")
-    tls = stream.get("tlsSettings") or {}
-    alpn = ",".join(str(a).lower() for a in tls.get("alpn") or [])
+    # Xray defaults an xhttp/ws path to "/" when the field is absent, and
+    # node_key() always carries a leading-slash path - keep both sides equal.
+    path = sub.get("path") or "/"
+    if stream.get("security") == "reality":
+        sec = stream.get("realitySettings") or {}
+    else:
+        sec = stream.get("tlsSettings") or {}
+    alpn = ",".join(str(a).lower() for a in sec.get("alpn") or [])
+    mode = sub.get("mode", "")
+    if mode == "auto":
+        mode = ""
+    # Xray spells the Hysteria 2 client protocol "hysteria" and Shadowsocks
+    # "shadowsocks"; node_key() uses the link's scheme names, so map both back.
+    scheme = {"hysteria": "hysteria2", "shadowsocks": "ss"}.get(protocol, protocol)
+    flow = ""
+    if protocol in ("vless", "vmess"):
+        vnext_users = ((outbound.get("settings") or {}).get("vnext") or [{}])[0].get("users") or []
+        if vnext_users:
+            flow = vnext_users[0].get("flow", "")
     return (
-        protocol,
+        scheme,
         address,
         port,
         user,
-        tls.get("serverName", ""),
+        sec.get("serverName", ""),
         network,
-        sub.get("path", ""),
+        path,
         host,
+        mode,
         alpn,
-        tls.get("fingerprint", ""),
+        sec.get("fingerprint", ""),
+        sec.get("publicKey", ""),
+        sec.get("shortId", ""),
+        flow,
+        method,
     )
 
 
@@ -366,26 +722,34 @@ def probe_once(outbound, port, workdir, timeout, samples):
             return False, None, "xray did not listen (%s)" % detail
 
         best, last_code = None, "none"
-        for _ in range(max(1, samples)):
-            result = subprocess.run(
-                ["curl", "-s", "-o", "/dev/null", "-w", "%{http_code} %{time_total}",
-                 "--max-time", str(timeout), "--socks5-hostname",
-                 "127.0.0.1:%d" % port, PROBE_URL],
-                capture_output=True, text=True, timeout=timeout + 5,
-            )
-            parts = (result.stdout or "").strip().split()
-            code = parts[0] if parts else "000"
-            last_code = code
-            if code == PROBE_EXPECTED and len(parts) > 1:
-                try:
-                    value = float(parts[1])
-                except ValueError:
-                    value = None
-                if value is not None:
-                    best = value if best is None else min(best, value)
-        if best is None:
-            return False, None, "HTTP %s" % last_code
-        return True, best, "HTTP 204 %.2fs" % best
+        for url in PROBE_URLS:
+            url_best = None
+            for _ in range(max(1, samples)):
+                result = subprocess.run(
+                    ["curl", "-s", "-o", "/dev/null", "-w", "%{http_code} %{time_total}",
+                     "--max-time", str(timeout), "--socks5-hostname",
+                     "127.0.0.1:%d" % port, url],
+                    capture_output=True, text=True, timeout=timeout + 5,
+                )
+                parts = (result.stdout or "").strip().split()
+                code = parts[0] if parts else "000"
+                last_code = code
+                if code == PROBE_EXPECTED and len(parts) > 1:
+                    try:
+                        value = float(parts[1])
+                    except ValueError:
+                        value = None
+                    if value is not None:
+                        url_best = value if url_best is None else min(url_best, value)
+                else:
+                    # 严格口径(2026-10-01): 任一样本失败即整节点淘汰 —— 排名时
+                    # "2次里过1次"的节点实测会带着 Google 拉黑问题混进前列
+                    # (leastPing 恰好优先选它)。误杀代价低(候选池大), 宁严勿松。
+                    return False, None, "HTTP %s (%s)" % (code, url.split("/")[2])
+            if url_best is None:
+                return False, None, "HTTP %s (%s)" % (last_code, url.split("/")[2])
+            best = url_best if best is None else max(best, url_best)
+        return True, best, "双204 %.2fs" % best
     except subprocess.TimeoutExpired:
         return False, None, "probe timeout"
     finally:
@@ -579,8 +943,9 @@ def drop_managed(config, state_tags, extra=()):
 def outbound_to_node(outbound):
     """Best-effort reverse mapping, used to re-test already configured nodes."""
     protocol = outbound.get("protocol")
-    # Xray's config name for a Hysteria 2 client is "hysteria".
-    scheme = "hysteria2" if protocol == "hysteria" else protocol
+    # Xray's config names for Hysteria 2 / Shadowsocks clients are "hysteria" /
+    # "shadowsocks"; node dicts use the link scheme names.
+    scheme = {"hysteria": "hysteria2", "shadowsocks": "ss"}.get(protocol, protocol)
     if scheme not in SUPPORTED_SCHEMES:
         return None
     stream = outbound.get("streamSettings") or {}
@@ -593,10 +958,22 @@ def outbound_to_node(outbound):
             return None
         address, port = servers[0].get("address", ""), servers[0].get("port", 0)
         user = servers[0].get("password", "")
+        flow = ""
+        ss_method = ""
+    elif protocol == "shadowsocks":
+        servers = (outbound.get("settings") or {}).get("servers") or []
+        if not servers:
+            return None
+        address, port = servers[0].get("address", ""), servers[0].get("port", 0)
+        user = servers[0].get("password", "")
+        ss_method = servers[0].get("method", "")
+        flow = ""
     elif protocol == "hysteria":
         hysteria = outbound.get("settings") or {}
         address, port = hysteria.get("address", ""), hysteria.get("port", 0)
         user = (stream.get("hysteriaSettings") or {}).get("auth", "")
+        flow = ""
+        ss_method = ""
     else:
         vnext = (outbound.get("settings") or {}).get("vnext") or []
         if not vnext:
@@ -604,16 +981,29 @@ def outbound_to_node(outbound):
         users = vnext[0].get("users") or []
         address, port = vnext[0].get("address", ""), vnext[0].get("port", 0)
         user = users[0].get("id", "") if users else ""
+        flow = users[0].get("flow", "") if users else ""
+        ss_method = ""
     sub = stream.get("wsSettings") or stream.get("xhttpSettings") or {}
     host = (sub.get("headers") or {}).get("Host") or sub.get("host", "")
-    tls = stream.get("tlsSettings") or {}
+    security = stream.get("security", "")
+    if security == "reality":
+        sec = stream.get("realitySettings") or {}
+    else:
+        sec = stream.get("tlsSettings") or {}
+    mode = sub.get("mode", "")
+    if mode == "auto":
+        mode = ""
     return {
-        "scheme": protocol, "user": user, "address": address, "port": port,
-        "security": stream.get("security", ""), "sni": tls.get("serverName", ""),
+        "scheme": scheme, "user": user, "address": address, "port": port,
+        "security": security, "sni": sec.get("serverName", ""),
         "network": network, "path": sub.get("path", "/"), "host": host,
-        "alpn": [str(a).lower() for a in tls.get("alpn") or []],
-        "fp": tls.get("fingerprint", ""), "flow": "",
-        "insecure": bool(tls.get("allowInsecure")),
+        "mode": mode,
+        "alpn": [str(a).lower() for a in sec.get("alpn") or []],
+        "fp": sec.get("fingerprint", ""), "flow": flow,
+        "pbk": sec.get("publicKey", ""), "sid": sec.get("shortId", ""),
+        "spx": sec.get("spiderX", ""),
+        "insecure": bool(sec.get("allowInsecure")),
+        "ss_method": ss_method,
         "label": "", "raw": outbound.get("tag", ""),
     }
 
@@ -748,6 +1138,11 @@ def parse_args(argv=None):
         description="测试本地 node.txt 里的节点，测速排名后只保留最快的 N 个到 Xray 配置。")
     parser.add_argument("-n", "--node-file", default=DEFAULT_NODE_FILE,
                         help="订阅文件，默认 %s" % DEFAULT_NODE_FILE)
+    parser.add_argument("-s", "--subscribe", action="append", default=[],
+                        metavar="URL",
+                        help="额外订阅 URL（可重复）；node.txt 里的 http(s):// 行与"
+                             "脚本旁的 subscriptions.txt（每行一个 URL，# 注释）也会"
+                             "被当作订阅拉取")
     parser.add_argument("-c", "--config", default=DEFAULT_CONFIG,
                         help="Xray 配置文件，默认 %s" % DEFAULT_CONFIG)
     parser.add_argument("-w", "--workers", type=int, default=24, help="并发测试数，默认 24")
@@ -794,9 +1189,46 @@ def main(argv=None):
         raise SystemExit("找不到订阅文件: %s" % args.node_file)
 
     with open(args.node_file, encoding="utf-8", errors="replace") as fh:
-        total_lines = sum(1 for line in fh if line.strip())
+        raw_lines = fh.readlines()
+    total_lines = sum(1 for line in raw_lines if line.strip())
 
-    nodes, skipped = load_nodes(args.node_file)
+    # ---- 订阅 URL 汇总: -s 参数 + subscriptions.txt + node.txt 里的 http(s) 行 ----
+    sub_urls = list(args.subscribe)
+    if os.path.exists(DEFAULT_SUB_FILE):
+        with open(DEFAULT_SUB_FILE, encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    sub_urls.append(line)
+    sub_urls += [line.strip() for line in raw_lines
+                 if re.match(r"https?://", line.strip())]
+    sub_urls = list(dict.fromkeys(sub_urls))     # 去重保序
+
+    nodes, skipped = load_nodes_lines(
+        [line for line in raw_lines if not re.match(r"https?://", line.strip())])
+
+    # ---- 拉取并解析全部订阅 ----
+    sub_nodes, sub_report = [], []
+    if sub_urls:
+        print("订阅源 %d 个（-s / subscriptions.txt / node.txt 内 URL）..." % len(sub_urls))
+    for url in sub_urls:
+        text = fetch_subscription(url)
+        if text is None:
+            print("  ⚠️ 拉取失败: %s" % url)
+            sub_report.append({"url": url, "ok": False, "nodes": 0})
+            continue
+        parsed = parse_subscription(text)
+        good = []
+        for node in parsed:
+            reason = node_supported(node)
+            if reason:
+                skipped.append((reason, node["label"] or url))
+                continue
+            good.append(node)
+        sub_report.append({"url": url, "ok": True, "nodes": len(good),
+                           "bytes": len(text)})
+        print("  ✔ %s: %d 个节点" % (url, len(good)))
+        sub_nodes.extend(good)
 
     # The config is read up front: hand-written proxy_* outbounds (proxy_sub1_…)
     # are adopted into the same pool, so they are measured and ranked next to the
@@ -812,6 +1244,14 @@ def main(argv=None):
 
     pool = list(nodes)
     known = {node_key(node) for node in pool}
+    sub_new = 0
+    for node in sub_nodes:
+        key = node_key(node)
+        if key in known:
+            continue
+        known.add(key)
+        pool.append(node)
+        sub_new += 1
     adopted_new = []
     for tag, node in adopted:
         if node_key(node) in known:
@@ -821,8 +1261,8 @@ def main(argv=None):
         adopted_new.append(tag)
 
     print("节点文件: %s" % args.node_file)
-    print("总行数 %d，去重后待测节点 %d，不支持/跳过 %d"
-          % (total_lines, len(nodes), len(skipped)))
+    print("总行数 %d，本地节点 %d，订阅新增 %d，去重后待测 %d，不支持/跳过 %d"
+          % (total_lines, len(nodes), sub_new, len(pool), len(skipped)))
     for reason, label in skipped:
         print("  跳过: %-45s %s" % (reason, label))
     if adopted:
@@ -927,6 +1367,7 @@ def main(argv=None):
         "config": args.config,
         "total_lines": total_lines,
         "candidates": len(nodes),
+        "subscription_sources": sub_report,
         "pool": len(pool),
         "adopted_manual": adopted_tags,
         "adopted_kept": adopted_kept,

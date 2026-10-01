@@ -1,0 +1,7 @@
+# 订阅源清单(每行一个 URL, # 开头为注释): 会被 sync_nodes.py 自动拉取并解析。
+# 支持三种格式: 纯 URI 列表 / base64 整块 / Clash proxies YAML。
+https://raw.githubusercontent.com/2OTT/Free-Nodes/refs/heads/main/Nodes/fxrj.txt
+https://d.zrfme.com/vless-base64
+https://raw.githubusercontent.com/shaoyouvip/free/refs/heads/main/all.yaml
+https://raw.githubusercontent.com/hello-world-1989/cn-news/main/end-gfw-together
+https://raw.githubusercontent.com/hello-world-1989/v2-sub/main/end-gfw-together-af3e13

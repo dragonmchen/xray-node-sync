@@ -1,1877 +1,4136 @@
 {
-  "generated_at": "2026-09-15 22:49:03",
+  "generated_at": "2026-10-01 17:14:00",
   "node_file": "/home/dragonmchen.guest/coding/python/xray-node-sync/node.txt",
   "config": "/etc/xray/config.json",
-  "total_lines": 290,
-  "candidates": 166,
-  "pool": 169,
-  "adopted_manual": [
-    "proxy_sub1_198_41_223_96",
-    "proxy_sub2_172_67_149_60",
-    "proxy_sub3_172_67_221_242",
-    "proxy_sub5_188_114_97_7",
-    "proxy_sub6_104_16_174_117",
-    "proxy_4_104_18_152_140",
-    "proxy_5_104_26_15_137"
+  "total_lines": 30,
+  "candidates": 25,
+  "subscription_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/2OTT/Free-Nodes/refs/heads/main/Nodes/fxrj.txt",
+      "ok": true,
+      "nodes": 617,
+      "bytes": 135662
+    },
+    {
+      "url": "https://d.zrfme.com/vless-base64",
+      "ok": true,
+      "nodes": 4,
+      "bytes": 2040
+    },
+    {
+      "url": "https://raw.githubusercontent.com/shaoyouvip/free/refs/heads/main/all.yaml",
+      "ok": true,
+      "nodes": 4,
+      "bytes": 2892
+    },
+    {
+      "url": "https://raw.githubusercontent.com/hello-world-1989/cn-news/main/end-gfw-together",
+      "ok": true,
+      "nodes": 2,
+      "bytes": 564
+    },
+    {
+      "url": "https://raw.githubusercontent.com/hello-world-1989/v2-sub/main/end-gfw-together-af3e13",
+      "ok": true,
+      "nodes": 6,
+      "bytes": 1440
+    }
   ],
-  "adopted_kept": [
-    "proxy_5_104_26_15_137",
-    "proxy_sub2_172_67_149_60",
-    "proxy_sub3_172_67_221_242",
-    "proxy_sub5_188_114_97_7"
-  ],
-  "adopted_dropped": [
-    "proxy_sub1_198_41_223_96",
-    "proxy_sub6_104_16_174_117",
-    "proxy_4_104_18_152_140"
-  ],
+  "pool": 652,
+  "adopted_manual": [],
+  "adopted_kept": [],
+  "adopted_dropped": [],
   "manual_untouched": [],
-  "usable": 168,
+  "usable": 8,
   "keep": 100,
-  "reranked": 167,
+  "reranked": 0,
   "kept": [
     {
-      "address": "104.26.14.137",
-      "port": 443,
-      "region": "HK",
-      "latency": 1.261,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.21.46.3",
-      "port": 443,
-      "region": "US",
-      "latency": 1.293,
-      "scheme": "trojan"
-    },
-    {
-      "address": "198.41.223.96",
-      "port": 443,
-      "region": "US",
-      "latency": 1.371,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.26.15.137",
-      "port": 443,
-      "region": "US",
-      "latency": 1.436,
-      "scheme": "trojan"
-    },
-    {
-      "address": "join-telegram-channel.tirexnet.kdns.fr",
-      "port": 443,
-      "region": "US",
-      "latency": 1.445,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.26.14.137",
-      "port": 443,
-      "region": "XX",
-      "latency": 1.482,
-      "scheme": "trojan"
-    },
-    {
-      "address": "8.6.112.0",
-      "port": 443,
-      "region": "US",
-      "latency": 1.499,
-      "scheme": "trojan"
-    },
-    {
-      "address": "www.speedtest.org",
-      "port": 443,
-      "region": "US",
-      "latency": 1.521,
-      "scheme": "trojan"
-    },
-    {
-      "address": "join-telegram-channel.tirexnet.kdns.fr",
-      "port": 443,
-      "region": "US",
-      "latency": 1.596,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.225",
-      "port": 443,
-      "region": "US",
-      "latency": 1.613,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.97",
-      "port": 443,
-      "region": "US",
-      "latency": 1.63,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.207",
-      "port": 443,
+      "address": "172.64.146.66",
+      "port": 8443,
       "region": "FR",
-      "latency": 1.64,
-      "scheme": "trojan"
+      "latency": 0.522,
+      "scheme": "vless"
     },
     {
-      "address": "104.21.46.3",
-      "port": 443,
-      "region": "US",
-      "latency": 1.668,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.34",
-      "port": 443,
-      "region": "US",
-      "latency": 1.672,
-      "scheme": "trojan"
-    },
-    {
-      "address": "join-telegram-channel-tirexnet.trex.kdns.fr",
-      "port": 443,
-      "region": "US",
-      "latency": 1.708,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.26.15.137",
-      "port": 443,
-      "region": "US",
-      "latency": 1.71,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.33",
-      "port": 443,
-      "region": "CA",
-      "latency": 1.728,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.109",
-      "port": 443,
-      "region": "FR",
-      "latency": 1.729,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.44",
-      "port": 443,
-      "region": "US",
-      "latency": 1.739,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.17.177.143",
-      "port": 443,
-      "region": "US",
-      "latency": 1.741,
-      "scheme": "trojan"
-    },
-    {
-      "address": "www.speedtest.org",
+      "address": "2.27.249.130",
       "port": 443,
       "region": "XX",
-      "latency": 1.788,
-      "scheme": "trojan"
+      "latency": 0.922,
+      "scheme": "vless"
     },
     {
-      "address": "104.18.23.63",
-      "port": 443,
-      "region": "FR",
-      "latency": 1.826,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.22",
-      "port": 443,
-      "region": "US",
-      "latency": 1.865,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.246",
-      "port": 443,
-      "region": "US",
-      "latency": 1.883,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.17.111.1",
-      "port": 443,
-      "region": "US",
-      "latency": 1.895,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.12.149",
-      "port": 443,
-      "region": "US",
-      "latency": 1.898,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.233",
-      "port": 443,
-      "region": "US",
-      "latency": 1.934,
-      "scheme": "trojan"
-    },
-    {
-      "address": "172.67.221.242",
-      "port": 443,
-      "region": "US",
-      "latency": 1.982,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.187",
-      "port": 443,
-      "region": "FR",
-      "latency": 2.012,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.17.111.8",
-      "port": 443,
-      "region": "CA",
-      "latency": 2.033,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.22",
-      "port": 443,
-      "region": "CA",
-      "latency": 2.055,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.34",
-      "port": 443,
-      "region": "CA",
-      "latency": 2.059,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.148",
-      "port": 443,
-      "region": "US",
-      "latency": 2.063,
-      "scheme": "trojan"
-    },
-    {
-      "address": "join-telegram-channel.tirexnet.kdns.fr",
-      "port": 443,
-      "region": "FR",
-      "latency": 2.07,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.6",
-      "port": 443,
-      "region": "US",
-      "latency": 2.074,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.225",
-      "port": 443,
-      "region": "US",
-      "latency": 2.112,
-      "scheme": "trojan"
-    },
-    {
-      "address": "86.38.214.205",
-      "port": 443,
-      "region": "US",
-      "latency": 2.12,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.7.70",
-      "port": 443,
-      "region": "US",
-      "latency": 2.151,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.124",
-      "port": 443,
-      "region": "US",
-      "latency": 2.153,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.229",
-      "port": 443,
-      "region": "US",
-      "latency": 2.155,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.17.177.143",
-      "port": 443,
-      "region": "US",
-      "latency": 2.199,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.108",
-      "port": 443,
-      "region": "US",
-      "latency": 2.282,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.22.63",
-      "port": 443,
-      "region": "CA",
-      "latency": 2.282,
-      "scheme": "trojan"
-    },
-    {
-      "address": "198.41.223.96",
-      "port": 443,
-      "region": "US",
-      "latency": 2.283,
-      "scheme": "trojan"
-    },
-    {
-      "address": "join-telegram-channel-tirexnet.trex.kdns.fr",
-      "port": 443,
-      "region": "US",
-      "latency": 2.311,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.210",
-      "port": 443,
-      "region": "US",
-      "latency": 2.339,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.161",
-      "port": 443,
-      "region": "US",
-      "latency": 2.34,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.73.213",
-      "port": 443,
-      "region": "US",
-      "latency": 2.345,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.187",
-      "port": 443,
-      "region": "US",
-      "latency": 2.346,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.36",
-      "port": 443,
-      "region": "US",
-      "latency": 2.364,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.17.111.4",
-      "port": 443,
-      "region": "US",
-      "latency": 2.373,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.12.149",
-      "port": 443,
-      "region": "US",
-      "latency": 2.373,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.23.63",
-      "port": 443,
-      "region": "HK",
-      "latency": 2.381,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.44",
-      "port": 443,
-      "region": "CA",
-      "latency": 2.415,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.208",
-      "port": 443,
-      "region": "US",
-      "latency": 2.421,
-      "scheme": "trojan"
-    },
-    {
-      "address": "172.67.149.60",
-      "port": 443,
-      "region": "US",
-      "latency": 2.451,
-      "scheme": "trojan"
-    },
-    {
-      "address": "86.38.214.205",
-      "port": 443,
-      "region": "FR",
-      "latency": 2.454,
-      "scheme": "trojan"
-    },
-    {
-      "address": "130.250.137.171",
-      "port": 443,
-      "region": "US",
-      "latency": 2.468,
-      "scheme": "trojan"
-    },
-    {
-      "address": "176.97.66.175",
-      "port": 443,
+      "address": "36.133.78.37",
+      "port": 50016,
       "region": "XX",
-      "latency": 2.477,
-      "scheme": "trojan"
+      "latency": 0.943,
+      "scheme": "vmess"
     },
     {
-      "address": "104.16.174.6",
+      "address": "1579e6d9-6b57-4fb1-b080-9c9a6da46ae5.fly.dev",
       "port": 443,
       "region": "US",
-      "latency": 2.517,
-      "scheme": "trojan"
+      "latency": 1.77,
+      "scheme": "vless"
     },
     {
-      "address": "104.20.6.134",
-      "port": 443,
-      "region": "US",
-      "latency": 2.526,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.6",
-      "port": 443,
-      "region": "US",
-      "latency": 2.53,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.17.111.3",
-      "port": 443,
-      "region": "US",
-      "latency": 2.547,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.143",
-      "port": 443,
-      "region": "US",
-      "latency": 2.554,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.108",
-      "port": 443,
+      "address": "91.240.86.70",
+      "port": 22443,
       "region": "XX",
-      "latency": 2.56,
-      "scheme": "trojan"
+      "latency": 1.827,
+      "scheme": "hysteria2"
     },
     {
-      "address": "104.18.152.140",
+      "address": "1579e6d9-6b57-4fb1-b080-9c9a6da46ae5.fly.dev",
       "port": 443,
       "region": "US",
-      "latency": 2.562,
-      "scheme": "trojan"
+      "latency": 2.229,
+      "scheme": "vless"
     },
     {
-      "address": "104.16.174.124",
-      "port": 443,
-      "region": "US",
-      "latency": 2.564,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.133",
-      "port": 443,
+      "address": "188.114.96.3",
+      "port": 8443,
       "region": "XX",
-      "latency": 2.58,
-      "scheme": "trojan"
+      "latency": 2.947,
+      "scheme": "vless"
     },
     {
-      "address": "104.18.23.63",
-      "port": 443,
-      "region": "US",
-      "latency": 2.612,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.144",
-      "port": 443,
-      "region": "US",
-      "latency": 2.624,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.185",
-      "port": 443,
-      "region": "US",
-      "latency": 2.632,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.113",
-      "port": 443,
-      "region": "US",
-      "latency": 2.641,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.23.63",
-      "port": 443,
-      "region": "GB",
-      "latency": 2.643,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.17.177.143",
-      "port": 443,
-      "region": "US",
-      "latency": 2.645,
-      "scheme": "trojan"
-    },
-    {
-      "address": "172.67.221.242",
-      "port": 443,
-      "region": "US",
-      "latency": 2.646,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.155",
-      "port": 443,
-      "region": "US",
-      "latency": 2.651,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.204",
-      "port": 443,
-      "region": "US",
-      "latency": 2.674,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.50",
-      "port": 443,
-      "region": "US",
-      "latency": 2.675,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.17.111.3",
-      "port": 443,
-      "region": "US",
-      "latency": 2.695,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.152",
-      "port": 443,
+      "address": "germany.tofreedom.ru",
+      "port": 8444,
       "region": "XX",
-      "latency": 2.72,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.12.149",
-      "port": 443,
-      "region": "US",
-      "latency": 2.744,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.246",
-      "port": 443,
-      "region": "US",
-      "latency": 2.744,
-      "scheme": "trojan"
-    },
-    {
-      "address": "188.114.97.7",
-      "port": 443,
-      "region": "XX",
-      "latency": 2.748,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.71",
-      "port": 443,
-      "region": "US",
-      "latency": 2.796,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.121",
-      "port": 443,
-      "region": "US",
-      "latency": 2.805,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.207",
-      "port": 443,
-      "region": "US",
-      "latency": 2.817,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.23.63",
-      "port": 443,
-      "region": "US",
-      "latency": 2.843,
-      "scheme": "trojan"
-    },
-    {
-      "address": "www.ignitelimit.com",
-      "port": 443,
-      "region": "US",
-      "latency": 2.849,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.159",
-      "port": 443,
-      "region": "US",
-      "latency": 2.897,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.16.174.12",
-      "port": 443,
-      "region": "US",
-      "latency": 2.935,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.208",
-      "port": 443,
-      "region": "US",
-      "latency": 2.946,
-      "scheme": "trojan"
-    },
-    {
-      "address": "172.67.221.242",
-      "port": 443,
-      "region": "US",
-      "latency": 2.957,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.204",
-      "port": 443,
-      "region": "US",
-      "latency": 2.97,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.103",
-      "port": 443,
-      "region": "US",
-      "latency": 3.006,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.140",
-      "port": 443,
-      "region": "US",
-      "latency": 3.027,
-      "scheme": "trojan"
-    },
-    {
-      "address": "165.215.250.14",
-      "port": 443,
-      "region": "US",
-      "latency": 3.032,
-      "scheme": "trojan"
-    },
-    {
-      "address": "172.67.149.60",
-      "port": 443,
-      "region": "US",
-      "latency": 3.039,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.244",
-      "port": 443,
-      "region": "US",
-      "latency": 3.04,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.143",
-      "port": 443,
-      "region": "US",
-      "latency": 3.052,
-      "scheme": "trojan"
-    },
-    {
-      "address": "104.18.152.233",
-      "port": 443,
-      "region": "US",
-      "latency": 3.057,
-      "scheme": "trojan"
+      "latency": 3.165,
+      "scheme": "vless"
     }
   ],
-  "dropped_slow": [
-    {
-      "address": "104.19.229.21",
-      "port": 443,
-      "region": "US",
-      "latency": 3.078
-    },
-    {
-      "address": "104.19.229.21",
-      "port": 443,
-      "region": "US",
-      "latency": 3.09
-    },
-    {
-      "address": "8.6.112.0",
-      "port": 443,
-      "region": "US",
-      "latency": 3.093
-    },
-    {
-      "address": "104.18.22.63",
-      "port": 443,
-      "region": "US",
-      "latency": 3.112
-    },
-    {
-      "address": "104.18.152.219",
-      "port": 443,
-      "region": "CA",
-      "latency": 3.114
-    },
-    {
-      "address": "104.16.174.36",
-      "port": 443,
-      "region": "US",
-      "latency": 3.127
-    },
-    {
-      "address": "ip.myip2.qzz.io",
-      "port": 443,
-      "region": "US",
-      "latency": 3.155
-    },
-    {
-      "address": "104.17.111.8",
-      "port": 443,
-      "region": "US",
-      "latency": 3.196
-    },
-    {
-      "address": "216.24.57.7",
-      "port": 443,
-      "region": "FR",
-      "latency": 3.249
-    },
-    {
-      "address": "104.18.152.179",
-      "port": 443,
-      "region": "US",
-      "latency": 3.281
-    },
-    {
-      "address": "104.18.152.149",
-      "port": 443,
-      "region": "US",
-      "latency": 3.306
-    },
-    {
-      "address": "104.16.73.213",
-      "port": 443,
-      "region": "CA",
-      "latency": 3.34
-    },
-    {
-      "address": "104.16.174.117",
-      "port": 443,
-      "region": "XX",
-      "latency": 3.386
-    },
-    {
-      "address": "ip.myip2.qzz.io",
-      "port": 443,
-      "region": "US",
-      "latency": 3.404
-    },
-    {
-      "address": "104.16.174.22",
-      "port": 443,
-      "region": "US",
-      "latency": 3.411
-    },
-    {
-      "address": "104.18.152.73",
-      "port": 443,
-      "region": "CA",
-      "latency": 3.454
-    },
-    {
-      "address": "104.16.174.143",
-      "port": 443,
-      "region": "US",
-      "latency": 3.485
-    },
-    {
-      "address": "104.18.22.63",
-      "port": 443,
-      "region": "CA",
-      "latency": 3.488
-    },
-    {
-      "address": "130.250.137.171",
-      "port": 443,
-      "region": "US",
-      "latency": 3.491
-    },
-    {
-      "address": "104.17.111.1",
-      "port": 443,
-      "region": "US",
-      "latency": 3.554
-    },
-    {
-      "address": "104.16.174.36",
-      "port": 443,
-      "region": "US",
-      "latency": 3.56
-    },
-    {
-      "address": "104.16.174.14",
-      "port": 443,
-      "region": "US",
-      "latency": 3.585
-    },
-    {
-      "address": "104.18.152.108",
-      "port": 443,
-      "region": "US",
-      "latency": 3.586
-    },
-    {
-      "address": "104.18.152.229",
-      "port": 443,
-      "region": "US",
-      "latency": 3.626
-    },
-    {
-      "address": "198.41.223.96",
-      "port": 443,
-      "region": "XX",
-      "latency": 3.628
-    },
-    {
-      "address": "216.24.57.7",
-      "port": 443,
-      "region": "US",
-      "latency": 3.696
-    },
-    {
-      "address": "172.67.221.242",
-      "port": 443,
-      "region": "GB",
-      "latency": 3.735
-    },
-    {
-      "address": "216.24.57.7",
-      "port": 443,
-      "region": "US",
-      "latency": 3.764
-    },
-    {
-      "address": "104.18.152.210",
-      "port": 443,
-      "region": "US",
-      "latency": 3.765
-    },
-    {
-      "address": "104.16.7.70",
-      "port": 443,
-      "region": "US",
-      "latency": 3.782
-    },
-    {
-      "address": "104.18.152.233",
-      "port": 443,
-      "region": "US",
-      "latency": 3.8
-    },
-    {
-      "address": "104.16.174.101",
-      "port": 443,
-      "region": "US",
-      "latency": 3.844
-    },
-    {
-      "address": "104.18.152.149",
-      "port": 443,
-      "region": "US",
-      "latency": 3.857
-    },
-    {
-      "address": "104.16.174.101",
-      "port": 443,
-      "region": "FR",
-      "latency": 3.875
-    },
-    {
-      "address": "104.18.152.244",
-      "port": 443,
-      "region": "CA",
-      "latency": 3.883
-    },
-    {
-      "address": "104.16.174.185",
-      "port": 443,
-      "region": "US",
-      "latency": 3.887
-    },
-    {
-      "address": "104.18.152.73",
-      "port": 443,
-      "region": "US",
-      "latency": 3.92
-    },
-    {
-      "address": "172.67.149.60",
-      "port": 443,
-      "region": "US",
-      "latency": 3.926
-    },
-    {
-      "address": "104.17.111.8",
-      "port": 443,
-      "region": "US",
-      "latency": 3.929
-    },
-    {
-      "address": "104.16.174.72",
-      "port": 443,
-      "region": "FR",
-      "latency": 3.942
-    },
-    {
-      "address": "104.18.152.152",
-      "port": 443,
-      "region": "CA",
-      "latency": 3.96
-    },
-    {
-      "address": "104.18.152.97",
-      "port": 443,
-      "region": "US",
-      "latency": 4.019
-    },
-    {
-      "address": "216.24.57.7",
-      "port": 443,
-      "region": "US",
-      "latency": 4.029
-    },
-    {
-      "address": "www.speedtest.net",
-      "port": 443,
-      "region": "US",
-      "latency": 4.029
-    },
-    {
-      "address": "104.16.174.14",
-      "port": 443,
-      "region": "US",
-      "latency": 4.036
-    },
-    {
-      "address": "104.18.152.204",
-      "port": 443,
-      "region": "CA",
-      "latency": 4.083
-    },
-    {
-      "address": "104.18.152.244",
-      "port": 443,
-      "region": "US",
-      "latency": 4.135
-    },
-    {
-      "address": "104.18.152.175",
-      "port": 443,
-      "region": "US",
-      "latency": 4.154
-    },
-    {
-      "address": "104.18.152.219",
-      "port": 443,
-      "region": "US",
-      "latency": 4.189
-    },
-    {
-      "address": "104.16.73.213",
-      "port": 443,
-      "region": "US",
-      "latency": 4.225
-    },
-    {
-      "address": "104.18.152.140",
-      "port": 443,
-      "region": "US",
-      "latency": 4.233
-    },
-    {
-      "address": "104.16.174.37",
-      "port": 443,
-      "region": "CA",
-      "latency": 4.344
-    },
-    {
-      "address": "104.18.152.144",
-      "port": 443,
-      "region": "US",
-      "latency": 4.433
-    },
-    {
-      "address": "ip.myip2.qzz.io",
-      "port": 443,
-      "region": "CA",
-      "latency": 4.452
-    },
-    {
-      "address": "104.16.174.101",
-      "port": 443,
-      "region": "FR",
-      "latency": 4.546
-    },
-    {
-      "address": "165.215.250.14",
-      "port": 443,
-      "region": "US",
-      "latency": 4.645
-    },
-    {
-      "address": "104.18.152.210",
-      "port": 443,
-      "region": "US",
-      "latency": 4.687
-    },
-    {
-      "address": "104.16.174.148",
-      "port": 443,
-      "region": "US",
-      "latency": 4.93
-    },
-    {
-      "address": "104.19.229.21",
-      "port": 443,
-      "region": "US",
-      "latency": 4.935
-    },
-    {
-      "address": "104.17.111.4",
-      "port": 443,
-      "region": "XX",
-      "latency": 4.968
-    },
-    {
-      "address": "104.18.152.77",
-      "port": 443,
-      "region": "US",
-      "latency": 5.044
-    },
-    {
-      "address": "104.18.152.143",
-      "port": 443,
-      "region": "US",
-      "latency": 5.046
-    },
-    {
-      "address": "216.24.57.7",
-      "port": 443,
-      "region": "FR",
-      "latency": 5.292
-    },
-    {
-      "address": "95.163.232.171",
-      "port": 14443,
-      "region": "US",
-      "latency": 5.382
-    },
-    {
-      "address": "104.17.111.4",
-      "port": 443,
-      "region": "US",
-      "latency": 5.883
-    },
-    {
-      "address": "104.18.152.159",
-      "port": 443,
-      "region": "US",
-      "latency": 6.354
-    },
-    {
-      "address": "104.18.152.77",
-      "port": 443,
-      "region": "CA",
-      "latency": 6.865
-    },
-    {
-      "address": "gta.internet-card.sbs",
-      "port": 443,
-      "region": "US",
-      "latency": 13.739
-    }
-  ],
+  "dropped_slow": [],
   "usable_regions": {
-    "HK": 2,
-    "US": 78,
-    "XX": 7,
-    "FR": 6,
-    "CA": 6,
-    "GB": 1
+    "FR": 1,
+    "XX": 5,
+    "US": 2
   },
   "recovered_by_retest": 0,
-  "skipped_unsupported": [],
+  "skipped_unsupported": [
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "transport not supported here (grpc)",
+      "label": "分享日记"
+    },
+    {
+      "reason": "protocol not supported by Xray (anytls)",
+      "label": "🇭🇰HK_1|3.8MB/s"
+    },
+    {
+      "reason": "protocol not supported by Xray (anytls)",
+      "label": "🇺🇸US_1|1.1MB/s"
+    },
+    {
+      "reason": "protocol not supported by Xray (socks)",
+      "label": "🇭🇰HK_2|2.7MB/s"
+    }
+  ],
   "failed": [
+    {
+      "address": "195.123.212.60",
+      "port": 15392,
+      "region": "LV",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.122.115.52",
+      "port": 20000,
+      "region": "KR",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "217.163.76.118",
+      "port": 2086,
+      "region": "DE",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.17.150.17",
+      "port": 443,
+      "region": "FR",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.67.79.81",
+      "port": 443,
+      "region": "FR",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.67.73.170",
+      "port": 443,
+      "region": "FR",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "139.84.177.239",
+      "port": 443,
+      "region": "IN",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.64.152.241",
+      "port": 443,
+      "region": "FR",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.141.227.180",
+      "port": 2053,
+      "region": "RU",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "169.40.42.232",
+      "port": 443,
+      "region": "US",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.235.43.210",
+      "port": 53957,
+      "region": "US",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "169.40.42.223",
+      "port": 443,
+      "region": "US",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "130.107.73.148",
+      "port": 41373,
+      "region": "CA",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "186.246.19.79",
+      "port": 40443,
+      "region": "US",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.253.226.114",
+      "port": 443,
+      "region": "US",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "169.40.42.168",
+      "port": 443,
+      "region": "US",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "169.40.42.225",
+      "port": 443,
+      "region": "US",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "107.173.237.146",
+      "port": 8443,
+      "region": "US",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "164.37.100.195",
+      "port": 443,
+      "region": "GB",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
     {
       "address": "178.72.162.73",
       "port": 443,
       "region": "RU",
-      "reason": "HTTP 000"
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "217.19.122.17",
+      "port": 10654,
+      "region": "RU",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "157.148.7.55",
+      "port": 50011,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "36.134.35.36",
+      "port": 50011,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "157.148.7.136",
+      "port": 50011,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "36.133.79.17",
+      "port": 50011,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "36.133.74.15",
+      "port": 50011,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "36.133.78.37",
+      "port": 50011,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "36.133.78.37",
+      "port": 50014,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "188.114.97.6",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "64.186.247.122",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.22.87.204",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "2.26.17.128",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "37.148.204.142",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.11.87.48",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.22.87.240",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.22.87.241",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.32.57.118",
+      "port": 4433,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.67.92.203",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "144.31.243.120",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "91.190.155.173",
+      "port": 2083,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "213.183.55.153",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "20.219.46.208",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.5.115",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "103.71.22.26",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "132.243.203.214",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.201.219",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "109.122.198.83",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.91.244",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.152.65.100",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "217.60.63.5",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "216.23.122.125",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.141.234.138",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.26.0.138",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.163.45.40",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "94.130.178.194",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "173.242.63.235",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "139.84.150.190",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "2.26.10.137",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.253.194.63",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "64.188.118.137",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "162.159.254.201",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.111.146.64",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "140.238.144.211",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.49.98",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "130.94.0.228",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "103.71.22.234",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "188.255.156.218",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "2.26.30.216",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "3.114.220.22",
+      "port": 10583,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "abctest.8rm.net",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "cdn.sfacg.uk",
+      "port": 2083,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "168.138.43.75",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "137.220.221.179",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "13.231.19.51",
+      "port": 11690,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "jpt.negai.de",
+      "port": 25874,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "36.133.78.37",
+      "port": 50015,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "36.133.78.37",
+      "port": 50017,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "84.247.155.196",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.112.249.201",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "cf.877774.xyz",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "165.154.195.38",
+      "port": 35034,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "hinet1.2yly.com",
+      "port": 24215,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "wwafj5lhl6bi8au9.v.3dns.vip",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "lcv8v9l7oyamxxfz.v.3dns.vip",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "jumpernode.online",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "6jdvarazgu3qqr6q.v.3dns.vip",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.76.102.39",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.244.120.197",
+      "port": 23026,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.76.137.85",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.244.120.197",
+      "port": 44867,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.243.80.106",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "139.28.168.201",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "6JDvArazgU3qQR6Q.v.3dns.vip",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "93ucrn4i0pffuabk.v.3dns.vip",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.86.107.119",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "vah4urdzl3jdx5r2.v.3dns.vip",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "china.letsconnectpoint.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "ex1ogt73nzpqkac2.v.3dns.vip",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.76.44.32",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.83.207.148",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "i2psm3knof5qjjix.v.3dns.vip",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.244.120.197",
+      "port": 36703,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "20.235.220.189",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.83.19.148",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "132.226.226.189",
+      "port": 50160,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.240.80.220",
+      "port": 2052,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "91.193.58.57",
+      "port": 2096,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "156.245.232.239",
+      "port": 35043,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "85.90.197.53",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "132.145.80.230",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "152.70.237.123",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "54.251.9.130",
+      "port": 24146,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "37.221.210.113",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "217.142.138.61",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "support.zoom.us",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.88.23.202",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "168.107.88.238",
+      "port": 56927,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.93",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "146.235.16.130",
+      "port": 19825,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.83",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.76",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "ww11.levikogjgfdd.ir",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "91.193.58.108",
+      "port": 2096,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "139.180.220.175",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.88.23.207",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.218",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.188",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "140.238.2.250",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.164",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "195.58.144.56",
+      "port": 11907,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.31",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.111.146.64",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "216.105.168.18",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "hy2.561891.xyz",
+      "port": 44356,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "us.netease.uz",
+      "port": 8444,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "108.181.0.177",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "108.181.118.10",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "36.133.78.37",
+      "port": 50018,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "23.236.69.39",
+      "port": 24187,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "hy2.123266.xyz",
+      "port": 33333,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "129.146.143.80",
+      "port": 48111,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "vspeedfast.org",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "216.152.152.187",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "84.247.155.196",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "91.193.58.157",
+      "port": 2096,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "129.146.77.248",
+      "port": 39495,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "cg1c02.waimaojd.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "173.244.56.9",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.78.51.123",
+      "port": 1080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.97.195",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "tk1.high-speed-test-56424.me",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "167.17.68.89",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.207.207.25",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.97.209",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.97.197",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "217.217.254.126",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.32",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.47",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "169.197.142.22",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.97.206",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "84.17.41.2",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "156.146.38.169",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "103.160.63.199",
+      "port": 31348,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "129.146.38.47",
+      "port": 50356,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "173.234.25.90",
+      "port": 15240,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "169.197.143.116",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "ww13.levikogjgfdd.ir",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.104.109.252",
+      "port": 8882,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "173.244.56.6",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "158.51.123.42",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "66.23.201.174",
+      "port": 10274,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.22.95.183",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.97.219",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "152.67.8.205",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "india.letsconnectpoint.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "ss.marmount.space",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "3h-unitedstates1.09vpn.com",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "156.146.38.168",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.105.39.124",
+      "port": 7002,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "66.23.204.219",
+      "port": 10676,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "139.84.166.47",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "156.146.38.167",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "free-server.techsonic.dev",
+      "port": 2096,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.128.12.20",
+      "port": 14249,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "156.146.38.170",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "167.88.62.124",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.156.47.97",
+      "port": 9443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.253.42.159",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "2001:bc8:32d7:1a9::2",
+      "port": 18901,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "23.162.200.198",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "67.220.72.237",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "yyz-ca-01.blncvpn4u.cc",
+      "port": 9443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "198.98.53.130",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "69.48.201.136",
+      "port": 30016,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "167.88.63.59",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.121",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "ww9.levikogjgfdd.ir",
+      "port": 36925,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "198.251.78.29",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.161.102.40",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "37.19.198.244",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "uspanel.unixzone.us",
+      "port": 30016,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "xn--us-qw52aklja.valdino.ir",
+      "port": 2089,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "usa-3.letsconnectpoint.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "134.195.196.211",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.17.195.13",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "aidrivercat.org",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.235.75.71",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "usa-2.letsconnectpoint.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "66.163.113.176",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "107.148.158.100",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "136.0.213.120",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "140.82.63.79",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "37.19.198.236",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "216.106.183.35",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.111.38.100",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "37.19.198.243",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "66.163.115.23",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.91.138.179",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.17.53.149",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.45.187",
+      "port": 9090,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.222.141.125",
+      "port": 445,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "107.148.158.102",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "37.19.198.160",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "64.74.161.148",
+      "port": 17201,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "66.163.118.73",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.222.155.32",
+      "port": 5003,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.19.33.237",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "67.220.95.3",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "67.220.85.46",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "198.57.27.190",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.45.187",
+      "port": 2376,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "134.195.198.214",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "38.110.1.246",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.247.206",
+      "port": 4444,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.20.30.10",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "38.91.107.49",
+      "port": 18000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "38.107.226.227",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "162.35.104.144",
+      "port": 8081,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.25.213.129",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "107.149.159.190",
+      "port": 10443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.222.107.43",
+      "port": 2083,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.233.41",
+      "port": 8882,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.64.146.228",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.3.219",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.246.107",
+      "port": 8888,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "108.181.57.93",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "ww2.levikogjgfdd.ir",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "ccs2g.pai50288.uk",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.16.72.50",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.19.229.21",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "www.speedtest.net",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.222.200.165",
+      "port": 5000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "2.27.109.179",
+      "port": 45464,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "88.99.189.60",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "89.41.172.85",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.19.64.105",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.18.9.83",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "198.62.62.23",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.16.72.41",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.17.121.43",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.36.141.81",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "188.114.97.6",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.64.152.23",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "212.183.88.136",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.25.110.22",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.250.135.244",
+      "port": 10000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "188.114.96.19",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.130.125.76",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.225.68.232",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "31.77.227.10",
+      "port": 52006,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.130.125.112",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "62.210.91.10",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "162.159.36.20",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.80.234.87",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.18.32.47",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.220.100.168",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "8.47.69.0",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "3.9.135.156",
+      "port": 51847,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.13.204",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "www.calmlunch.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "85.90.217.42",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "166.1.36.83",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "62.210.91.2",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "162.159.244.91",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.67.200.219",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.205.0.6",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "chat.openai.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.16.72.2",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.87.41.18",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "tomaz1337shellbuy.vvzzkontaktezzvv.garden",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "actual-squid.rooster465.autos",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "188.42.145.180",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "204.216.216.23",
+      "port": 10086,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.80.215.8",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "162.159.91.211",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.130.125.190",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.84.30",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "nasnet-162191099-direct.mbghalibaf.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "mortxzaaz98-production.up.railway.app",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "8.209.74.72",
+      "port": 20001,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.26.0.7",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "uae.unixzone.us",
+      "port": 22573,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "google.whatsapp.snapp.torob.basalam.fortresshost.ir.",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.18.250.252",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.130.125.75",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.255.179.166",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "36.133.78.37",
+      "port": 50013,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.102.149.207",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.17.121.71",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "188.114.98.0",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "162.19.10.99",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "78.47.146.151",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.18.8.83",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.25.109.237",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "57.129.132.223",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.67.74.10",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "80.77.25.142",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "31.76.11.83",
+      "port": 26070,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "aksai.org",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "nl-irancell3.xelfona.ir",
+      "port": 49548,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.102.149.207",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "fra.loozerp.wiki",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "84.235.244.108",
+      "port": 22573,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "107.189.18.145",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "kvm1.avenone.ir",
+      "port": 8402,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.67.185.98",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "31.76.249.174",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "217.149.26.11",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.102.132.184",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.80.111.7",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.google.com)"
+    },
+    {
+      "address": "108.181.58.239",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.33.59",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "162.249.127.135",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "www.large-files.info",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "95.85.247.128",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "95.85.253.202",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "64.188.126.56",
+      "port": 43000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "nasnet-571299667-direct.mbghalibaf.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.64.150.28",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.67.231.254",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "opedwser-production.up.railway.app",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.171.202.105",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.38.71.51",
+      "port": 2083,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "136.148.71.151",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "152.228.162.19",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "195.181.244.216",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "31.76.11.83",
+      "port": 23326,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "alive-flea.rooster465.autos",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "chatgpt.com",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "216.106.183.35",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "194.99.79.26",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.64.235",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "165.215.250.14",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "158.51.121.123",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "108.181.126.122",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "108.181.121.226",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "132.243.175.144",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "rubifen.adaspoloandco.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "mygptagent.org",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.192",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "pl3.moritech.net",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "kala.fortresshost.ir",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.164.175.81",
+      "port": 19999,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "199.247.23.162",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "158.173.20.171",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.42",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.67.180.92",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "213.178.141.33",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.77.225.200",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "188.114.96.2",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.189",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "155.117.234.158",
+      "port": 8082,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.247.175",
+      "port": 8008,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "31.77.8.97",
+      "port": 110,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "dey.lnmarketplace.net",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.145.40.61",
+      "port": 7443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "158.173.20.208",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.60.29",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.110.60.9",
+      "port": 19999,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "144.31.2.33",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.204",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "129.101.123.92",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "194.76.154.31",
+      "port": 40443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.162",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.195.126.38",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "nlll.gaz-service.shop",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "conge.ggisopi.su",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.103",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.88.12.119",
+      "port": 2083,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.183",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "chatgpt-async-webps-prod-centralus-0.chatgpt.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.213",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "213.182.199.137",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "89.185.81.95",
+      "port": 8765,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "milan.adaspoloandco.com",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "germa12.ggisopi.su",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.198",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.187",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.102.132.184",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "ov-france1.09vpn.com",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.168",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "site.check-looks.space",
+      "port": 2083,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.186",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.10",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "80.85.141.32",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "66.163.118.73",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.255.13.232",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "144.31.5.3",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.67.190.248",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.29",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.45.97.147",
+      "port": 10803,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.147",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.208",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.35",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.181",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "102.133.165.160",
+      "port": 16233,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.86",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.98",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.96",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "162.35.242.252",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.190",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.3",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.61",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.223",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.218",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.235",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.184",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "216.106.187.60",
+      "port": 22324,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.80",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.13",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.226.172.8",
+      "port": 8008,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "pl4.moritech.net",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.206",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.49",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.82",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "slowkd.sadiepinki.com",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.176",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "188.114.98.0",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.202",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.2",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.213.23.63",
+      "port": 990,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.132",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "158.173.24.73",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "37.220.86.155",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.46",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.151",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.47",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "186.190.211.67",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "pahobac.org",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.217",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.7",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.25",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.8",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "91.107.191.188",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.193",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "209.46.102.22",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.179",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.149",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "57.131.48.45",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.188",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "140.174.184.5",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "57.129.96.67",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "ov-germany1.09vpn.com",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "139.64.166.25",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.212",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "57.131.21.102",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "host.taghvimtime.ir",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.219",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.202",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.235",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "94.156.250.148",
+      "port": 7001,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.38.127.93",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.155",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.210",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "119.46.51.45",
+      "port": 37515,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.87",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "163.172.213.174",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "179.254.163.11",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.71.238",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "nl.vpnifty.ru",
+      "port": 18443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.45.187",
+      "port": 5498,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.34",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.26",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.16.84.44",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.214",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "8.217.229.155",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.198",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.185",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.9",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "129.146.63.176",
+      "port": 50356,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "87.120.216.144",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.62",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.207",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "102.37.156.224",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "212.46.33.90",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.205",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "gerwai1488.vvzzkontaktezzvv.garden",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.211",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.48",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.26",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "87.192.47.10",
+      "port": 52006,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.201",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.11",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "199.107.164.105",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.212",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.16",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "80.85.141.234",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.182",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.180",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.45.187",
+      "port": 8000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.19.83.22",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.174",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "212.46.33.5",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "tcdnu.azad0namah.ir",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "54.37.136.194",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.26.14.85",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.175",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "2.58.81.221",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "36.133.78.37",
+      "port": 50012,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.51",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.225",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.149",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.203",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "id-nl-01.mintrocket.org",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.191",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.164",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.156",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.199",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.174",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.97",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.98.101.181",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.66",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.158.206.34",
+      "port": 23576,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "154.46.31.106",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "154.37.223.56",
+      "port": 52080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.80.234.39",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "103.214.111.162",
+      "port": 16469,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.19.6.14",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "176.120.17.22",
+      "port": 1080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.197",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "31.77.227.6",
+      "port": 52006,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "qtkdr8jxe3wefxjm.v.3dns.vip",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.29.139.234",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "surstreming.vvzzkontaktezzvv.garden",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.28",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "173.245.49.157",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "smart.avenone.ir",
+      "port": 1085,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "179.254.109.54",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.39",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "sc-thenetherlands1.09vpn.com",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.17",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "cheerful-swan.rooster465.autos",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "94.249.187.46",
+      "port": 1080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "bogging-eyeteeth-fly.freesocks.work",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.18",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.231.233.91",
+      "port": 17167,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.194",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.216",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.195",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "cosw.ggisopi.su",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.157.10.148",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "172.67.172.95",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "206.71.158.124",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.204",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.69",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "177.3.208.65",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.41.247",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.36",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.79.49.116",
+      "port": 8882,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "31.77.13.19",
+      "port": 2063,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.175",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "198.202.211.1",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.79.85.185",
+      "port": 8118,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "150.241.74.79",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "us05.shifor01.life",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "45.152.113.206",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "144.31.27.215",
+      "port": 43000,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "pl-waw.dontblockmepls.com",
+      "port": 2063,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "server.slavkiti.monster",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "85.17.145.65",
+      "port": 12068,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "193.108.117.54",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "turkii2.henlo.ir",
+      "port": 25920,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "staging.lastilhame.monster",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "178.83.46.216",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.16.85.85",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "217.19.122.200",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "fbsv6.guardora.pro",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "78.159.246.110",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.246.132",
+      "port": 7307,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "129.146.164.199",
+      "port": 50356,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "213.202.208.199",
+      "port": 7001,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "test.keoplentuio.xyz",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.222.136.236",
+      "port": 8882,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.45.187",
+      "port": 5001,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.45.187",
+      "port": 8008,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "91.215.43.80",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "prep.wwwinternetvideo.click",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.45.187",
+      "port": 6679,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "149.202.58.99",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "milo.rubinaz.xyz",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "mypanel.unixzone.us",
+      "port": 12068,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "87.58.201.67",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "31.76.249.116",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "139.84.247.164",
+      "port": 8388,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "138.2.73.238",
+      "port": 50160,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "81.95.4.189",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "3h-kazakhstan1.09vpn.com",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "38.107.234.57",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "134.122.154.210",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "89.218.15.90",
+      "port": 10002,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.247.124",
+      "port": 2375,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.45.187",
+      "port": 6697,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.75.67.209",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "15.204.247.244",
+      "port": 4444,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "free.sahanwickramasinghe.me",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "deak.nightfall.best",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "2.58.81.221",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "185.141.227.180",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "ce1fc2d8.krkt.hkssip.com",
+      "port": 49642,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.79.64.198",
+      "port": 8119,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "dismissaltree.net",
+      "port": 2053,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "176.65.144.45",
+      "port": 2096,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.45.187",
+      "port": 7001,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "5.223.41.179",
+      "port": 80,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "www.nextkyc.com",
+      "port": 8443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "82.38.31.200",
+      "port": 8080,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "51.222.12.127",
+      "port": 445,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.20.62.228",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.45.147",
+      "port": 443,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "141.164.45.187",
+      "port": 7002,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "211.174.113.172",
+      "port": 49642,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "94.183.154.216",
+      "port": 1001,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "agroup.de1.ilovegairport.com",
+      "port": 443,
+      "region": "DE",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.21.69.30",
+      "port": 443,
+      "region": "DE",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "104.18.10.110",
+      "port": 443,
+      "region": "US",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "103.126.51.38",
+      "port": 8443,
+      "region": "RO",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "47.129.238.241",
+      "port": 8686,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "43.202.33.199",
+      "port": 8686,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "54.199.8.75",
+      "port": 6666,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "43.203.241.196",
+      "port": 6666,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "54.199.8.75",
+      "port": 6668,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "43.203.241.196",
+      "port": 6668,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "54.199.8.75",
+      "port": 6868,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
+    },
+    {
+      "address": "43.203.241.196",
+      "port": 6868,
+      "region": "XX",
+      "reason": "HTTP 000 (www.gstatic.com)"
     }
   ],
   "removed_managed": [
-    "proxy_sub1_198_41_223_96",
-    "proxy_sub2_172_67_149_60",
-    "proxy_sub3_172_67_221_242",
-    "proxy_sub5_188_114_97_7",
-    "proxy_sub6_104_16_174_117",
-    "proxy_4_104_18_152_140",
-    "proxy_5_104_26_15_137",
-    "proxy_US_198_41_223_96",
-    "proxy_FR_join-telegram-channel_tirexnet_kdns_fr",
-    "proxy_US_104_18_152_143",
-    "proxy_US_www_speedtest_org",
-    "proxy_US_172_67_221_242",
-    "proxy_CA_104_18_152_73",
-    "proxy_US_104_16_174_121",
-    "proxy_US_104_18_152_210",
-    "proxy_US_130_250_137_171",
-    "proxy_CA_104_18_22_63",
-    "proxy_FR_104_16_174_101",
-    "proxy_CA_104_18_152_244",
-    "proxy_CA_104_17_111_8",
-    "proxy_US_198_41_223_96_2",
-    "proxy_US_ip_myip2_qzz_io",
-    "proxy_US_104_18_152_140",
-    "proxy_CA_104_16_174_22",
-    "proxy_US_104_17_111_8",
-    "proxy_US_104_18_12_149",
-    "proxy_US_104_17_111_1",
-    "proxy_US_104_16_174_22",
-    "proxy_FR_216_24_57_7",
-    "proxy_US_104_16_174_36",
-    "proxy_US_104_18_152_244",
-    "proxy_US_130_250_137_171_2",
-    "proxy_CA_104_18_152_204",
-    "proxy_US_104_18_152_246",
-    "proxy_US_104_16_174_124",
-    "proxy_US_104_16_174_36_2",
-    "proxy_US_104_18_152_149",
-    "proxy_US_104_16_7_70",
-    "proxy_HK_104_26_14_137",
-    "proxy_US_104_16_174_185",
-    "proxy_US_104_20_6_134",
-    "proxy_US_165_215_250_14",
-    "proxy_US_104_16_174_14",
-    "proxy_CA_104_16_174_37",
-    "proxy_US_104_16_174_143",
-    "proxy_US_104_18_152_219",
-    "proxy_US_104_17_111_3",
-    "proxy_US_104_18_152_233",
-    "proxy_US_104_18_152_108",
-    "proxy_CA_104_16_174_33",
-    "proxy_XX_176_97_66_175",
-    "proxy_US_104_19_229_21",
-    "proxy_US_165_215_250_14_2",
-    "proxy_US_104_18_23_63",
-    "proxy_US_104_18_12_149_2",
-    "proxy_US_216_24_57_7",
-    "proxy_US_104_18_152_149_2",
-    "proxy_US_104_18_152_244_2",
-    "proxy_US_172_67_149_60",
-    "proxy_US_104_18_152_108_2",
-    "proxy_US_www_ignitelimit_com",
-    "proxy_US_216_24_57_7_2",
-    "proxy_US_104_18_152_225",
-    "proxy_US_104_17_111_1_2",
-    "proxy_US_104_18_152_207",
-    "proxy_GB_172_67_221_242",
-    "proxy_US_104_18_152_233_2",
-    "proxy_US_86_38_214_205",
-    "proxy_US_104_17_111_4",
-    "proxy_XX_www_speedtest_org",
-    "proxy_US_104_18_152_113",
-    "proxy_US_104_18_152_77",
-    "proxy_US_104_18_152_50",
-    "proxy_US_104_18_152_187",
-    "proxy_US_104_18_152_97",
-    "proxy_US_104_18_152_103",
-    "proxy_US_104_18_152_208",
-    "proxy_US_104_16_174_34",
-    "proxy_US_104_18_152_229",
-    "proxy_US_104_18_152_233_3",
-    "proxy_US_join-telegram-channel-tirexnet_trex_kdns_fr",
-    "proxy_US_www_speedtest_net",
-    "proxy_US_104_16_73_213",
-    "proxy_US_104_18_152_204",
-    "proxy_US_104_19_229_21_2",
-    "proxy_US_ip_myip2_qzz_io_2",
-    "proxy_US_104_16_174_148",
-    "proxy_US_8_6_112_0",
-    "proxy_CA_104_16_174_44",
-    "proxy_US_104_18_152_143_2",
-    "proxy_US_104_18_152_159",
-    "proxy_CA_104_18_152_219",
-    "proxy_US_join-telegram-channel-tirexnet_trex_kdns_fr_2",
-    "proxy_US_104_17_111_4_2",
-    "proxy_CA_104_18_152_77",
-    "proxy_US_104_16_7_70_2",
-    "proxy_CA_ip_myip2_qzz_io",
-    "proxy_US_104_18_12_149_3",
-    "proxy_US_104_18_152_97_2",
-    "proxy_US_join-telegram-channel_tirexnet_kdns_fr",
-    "proxy_CA_104_18_152_152",
-    "proxy_US_104_18_152_246_2",
-    "proxy_US_104_16_174_148_2",
-    "proxy_FR_86_38_214_205",
-    "proxy_FR_104_18_152_207"
+    "proxy_XX_91_240_86_70",
+    "proxy_FR_172_64_146_66",
+    "proxy_XX_36_133_78_37",
+    "proxy_XX_47_129_238_241",
+    "proxy_XX_id-nl-01_mintrocket_org",
+    "proxy_XX_43_202_33_199",
+    "proxy_XX_188_114_96_3",
+    "proxy_XX_37_221_210_113",
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev",
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev_2",
+    "proxy_XX_cf_877774_xyz",
+    "proxy_XX_78_159_246_110",
+    "proxy_XX_germany_tofreedom_ru"
   ],
   "added": [
     {
-      "tag": "proxy_HK_104_26_14_137",
-      "protocol": "trojan",
-      "address": "104.26.14.137",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_21_46_3",
-      "protocol": "trojan",
-      "address": "104.21.46.3",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_198_41_223_96",
-      "protocol": "trojan",
-      "address": "198.41.223.96",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_26_15_137",
-      "protocol": "trojan",
-      "address": "104.26.15.137",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_join-telegram-channel_tirexnet_kdns_fr",
-      "protocol": "trojan",
-      "address": "join-telegram-channel.tirexnet.kdns.fr",
-      "port": 443
-    },
-    {
-      "tag": "proxy_XX_104_26_14_137",
-      "protocol": "trojan",
-      "address": "104.26.14.137",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_8_6_112_0",
-      "protocol": "trojan",
-      "address": "8.6.112.0",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_www_speedtest_org",
-      "protocol": "trojan",
-      "address": "www.speedtest.org",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_join-telegram-channel_tirexnet_kdns_fr_2",
-      "protocol": "trojan",
-      "address": "join-telegram-channel.tirexnet.kdns.fr",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_225",
-      "protocol": "trojan",
-      "address": "104.18.152.225",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_97",
-      "protocol": "trojan",
-      "address": "104.18.152.97",
-      "port": 443
-    },
-    {
-      "tag": "proxy_FR_104_18_152_207",
-      "protocol": "trojan",
-      "address": "104.18.152.207",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_21_46_3_2",
-      "protocol": "trojan",
-      "address": "104.21.46.3",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_34",
-      "protocol": "trojan",
-      "address": "104.16.174.34",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_join-telegram-channel-tirexnet_trex_kdns_fr",
-      "protocol": "trojan",
-      "address": "join-telegram-channel-tirexnet.trex.kdns.fr",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_26_15_137_2",
-      "protocol": "trojan",
-      "address": "104.26.15.137",
-      "port": 443
-    },
-    {
-      "tag": "proxy_CA_104_16_174_33",
-      "protocol": "trojan",
-      "address": "104.16.174.33",
-      "port": 443
-    },
-    {
-      "tag": "proxy_FR_104_16_174_109",
-      "protocol": "trojan",
-      "address": "104.16.174.109",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_44",
-      "protocol": "trojan",
-      "address": "104.16.174.44",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_17_177_143",
-      "protocol": "trojan",
-      "address": "104.17.177.143",
-      "port": 443
-    },
-    {
-      "tag": "proxy_XX_www_speedtest_org",
-      "protocol": "trojan",
-      "address": "www.speedtest.org",
-      "port": 443
-    },
-    {
-      "tag": "proxy_FR_104_18_23_63",
-      "protocol": "trojan",
-      "address": "104.18.23.63",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_22",
-      "protocol": "trojan",
-      "address": "104.16.174.22",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_246",
-      "protocol": "trojan",
-      "address": "104.18.152.246",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_17_111_1",
-      "protocol": "trojan",
-      "address": "104.17.111.1",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_12_149",
-      "protocol": "trojan",
-      "address": "104.18.12.149",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_233",
-      "protocol": "trojan",
-      "address": "104.18.152.233",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_172_67_221_242",
-      "protocol": "trojan",
-      "address": "172.67.221.242",
-      "port": 443
-    },
-    {
-      "tag": "proxy_FR_104_18_152_187",
-      "protocol": "trojan",
-      "address": "104.18.152.187",
-      "port": 443
-    },
-    {
-      "tag": "proxy_CA_104_17_111_8",
-      "protocol": "trojan",
-      "address": "104.17.111.8",
-      "port": 443
-    },
-    {
-      "tag": "proxy_CA_104_16_174_22",
-      "protocol": "trojan",
-      "address": "104.16.174.22",
-      "port": 443
-    },
-    {
-      "tag": "proxy_CA_104_16_174_34",
-      "protocol": "trojan",
-      "address": "104.16.174.34",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_148",
-      "protocol": "trojan",
-      "address": "104.16.174.148",
-      "port": 443
-    },
-    {
-      "tag": "proxy_FR_join-telegram-channel_tirexnet_kdns_fr",
-      "protocol": "trojan",
-      "address": "join-telegram-channel.tirexnet.kdns.fr",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_6",
-      "protocol": "trojan",
-      "address": "104.16.174.6",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_225_2",
-      "protocol": "trojan",
-      "address": "104.18.152.225",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_86_38_214_205",
-      "protocol": "trojan",
-      "address": "86.38.214.205",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_7_70",
-      "protocol": "trojan",
-      "address": "104.16.7.70",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_124",
-      "protocol": "trojan",
-      "address": "104.16.174.124",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_229",
-      "protocol": "trojan",
-      "address": "104.18.152.229",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_17_177_143_2",
-      "protocol": "trojan",
-      "address": "104.17.177.143",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_108",
-      "protocol": "trojan",
-      "address": "104.18.152.108",
-      "port": 443
-    },
-    {
-      "tag": "proxy_CA_104_18_22_63",
-      "protocol": "trojan",
-      "address": "104.18.22.63",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_198_41_223_96_2",
-      "protocol": "trojan",
-      "address": "198.41.223.96",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_join-telegram-channel-tirexnet_trex_kdns_fr_2",
-      "protocol": "trojan",
-      "address": "join-telegram-channel-tirexnet.trex.kdns.fr",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_210",
-      "protocol": "trojan",
-      "address": "104.18.152.210",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_161",
-      "protocol": "trojan",
-      "address": "104.18.152.161",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_73_213",
-      "protocol": "trojan",
-      "address": "104.16.73.213",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_187",
-      "protocol": "trojan",
-      "address": "104.18.152.187",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_36",
-      "protocol": "trojan",
-      "address": "104.16.174.36",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_17_111_4",
-      "protocol": "trojan",
-      "address": "104.17.111.4",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_12_149_2",
-      "protocol": "trojan",
-      "address": "104.18.12.149",
-      "port": 443
-    },
-    {
-      "tag": "proxy_HK_104_18_23_63",
-      "protocol": "trojan",
-      "address": "104.18.23.63",
-      "port": 443
-    },
-    {
-      "tag": "proxy_CA_104_16_174_44",
-      "protocol": "trojan",
-      "address": "104.16.174.44",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_208",
-      "protocol": "trojan",
-      "address": "104.18.152.208",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_172_67_149_60",
-      "protocol": "trojan",
-      "address": "172.67.149.60",
-      "port": 443
-    },
-    {
-      "tag": "proxy_FR_86_38_214_205",
-      "protocol": "trojan",
-      "address": "86.38.214.205",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_130_250_137_171",
-      "protocol": "trojan",
-      "address": "130.250.137.171",
-      "port": 443
-    },
-    {
-      "tag": "proxy_XX_176_97_66_175",
-      "protocol": "trojan",
-      "address": "176.97.66.175",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_6_2",
-      "protocol": "trojan",
-      "address": "104.16.174.6",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_20_6_134",
-      "protocol": "trojan",
-      "address": "104.20.6.134",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_6_3",
-      "protocol": "trojan",
-      "address": "104.16.174.6",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_17_111_3",
-      "protocol": "trojan",
-      "address": "104.17.111.3",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_143",
-      "protocol": "trojan",
-      "address": "104.16.174.143",
-      "port": 443
-    },
-    {
-      "tag": "proxy_XX_104_18_152_108",
-      "protocol": "trojan",
-      "address": "104.18.152.108",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_140",
-      "protocol": "trojan",
-      "address": "104.18.152.140",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_124_2",
-      "protocol": "trojan",
-      "address": "104.16.174.124",
-      "port": 443
-    },
-    {
-      "tag": "proxy_XX_104_18_152_133",
-      "protocol": "trojan",
-      "address": "104.18.152.133",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_23_63",
-      "protocol": "trojan",
-      "address": "104.18.23.63",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_144",
-      "protocol": "trojan",
-      "address": "104.18.152.144",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_185",
-      "protocol": "trojan",
-      "address": "104.16.174.185",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_113",
-      "protocol": "trojan",
-      "address": "104.18.152.113",
-      "port": 443
-    },
-    {
-      "tag": "proxy_GB_104_18_23_63",
-      "protocol": "trojan",
-      "address": "104.18.23.63",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_17_177_143_3",
-      "protocol": "trojan",
-      "address": "104.17.177.143",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_172_67_221_242_2",
-      "protocol": "trojan",
-      "address": "172.67.221.242",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_155",
-      "protocol": "trojan",
-      "address": "104.18.152.155",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_204",
-      "protocol": "trojan",
-      "address": "104.18.152.204",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_50",
-      "protocol": "trojan",
-      "address": "104.18.152.50",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_17_111_3_2",
-      "protocol": "trojan",
-      "address": "104.17.111.3",
-      "port": 443
-    },
-    {
-      "tag": "proxy_XX_104_18_152_152",
-      "protocol": "trojan",
-      "address": "104.18.152.152",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_12_149_3",
-      "protocol": "trojan",
-      "address": "104.18.12.149",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_246_2",
-      "protocol": "trojan",
-      "address": "104.18.152.246",
-      "port": 443
-    },
-    {
-      "tag": "proxy_XX_188_114_97_7",
-      "protocol": "trojan",
-      "address": "188.114.97.7",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_71",
-      "protocol": "trojan",
-      "address": "104.16.174.71",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_121",
-      "protocol": "trojan",
-      "address": "104.16.174.121",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_207",
-      "protocol": "trojan",
-      "address": "104.18.152.207",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_23_63_2",
-      "protocol": "trojan",
-      "address": "104.18.23.63",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_www_ignitelimit_com",
-      "protocol": "trojan",
-      "address": "www.ignitelimit.com",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_159",
-      "protocol": "trojan",
-      "address": "104.18.152.159",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_16_174_12",
-      "protocol": "trojan",
-      "address": "104.16.174.12",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_208_2",
-      "protocol": "trojan",
-      "address": "104.18.152.208",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_172_67_221_242_3",
-      "protocol": "trojan",
-      "address": "172.67.221.242",
-      "port": 443
-    },
-    {
-      "tag": "proxy_US_104_18_152_204_2",
-      "protocol": "trojan",
-      "address": "104.18.152.204",
-      "port": 443
+      "tag": "proxy_FR_172_64_146_66",
+      "protocol": "vless",
+      "address": "172.64.146.66",
+      "port": 8443
     },
     {
-      "tag": "proxy_US_104_18_152_103",
-      "protocol": "trojan",
-      "address": "104.18.152.103",
+      "tag": "proxy_XX_2_27_249_130",
+      "protocol": "vless",
+      "address": "2.27.249.130",
       "port": 443
     },
     {
-      "tag": "proxy_US_104_18_152_140_2",
-      "protocol": "trojan",
-      "address": "104.18.152.140",
-      "port": 443
+      "tag": "proxy_XX_36_133_78_37",
+      "protocol": "vmess",
+      "address": "36.133.78.37",
+      "port": 50016
     },
     {
-      "tag": "proxy_US_165_215_250_14",
-      "protocol": "trojan",
-      "address": "165.215.250.14",
+      "tag": "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev",
+      "protocol": "vless",
+      "address": "1579e6d9-6b57-4fb1-b080-9c9a6da46ae5.fly.dev",
       "port": 443
     },
     {
-      "tag": "proxy_US_172_67_149_60_2",
-      "protocol": "trojan",
-      "address": "172.67.149.60",
-      "port": 443
+      "tag": "proxy_XX_91_240_86_70",
+      "protocol": "hysteria",
+      "address": null,
+      "port": null
     },
     {
-      "tag": "proxy_US_104_18_152_244",
-      "protocol": "trojan",
-      "address": "104.18.152.244",
+      "tag": "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev_2",
+      "protocol": "vless",
+      "address": "1579e6d9-6b57-4fb1-b080-9c9a6da46ae5.fly.dev",
       "port": 443
     },
     {
-      "tag": "proxy_US_104_18_152_143",
-      "protocol": "trojan",
-      "address": "104.18.152.143",
-      "port": 443
+      "tag": "proxy_XX_188_114_96_3",
+      "protocol": "vless",
+      "address": "188.114.96.3",
+      "port": 8443
     },
     {
-      "tag": "proxy_US_104_18_152_233_2",
-      "protocol": "trojan",
-      "address": "104.18.152.233",
-      "port": 443
+      "tag": "proxy_XX_germany_tofreedom_ru",
+      "protocol": "vless",
+      "address": "germany.tofreedom.ru",
+      "port": 8444
     }
   ],
   "duplicates": 0,
   "pruned": [],
   "pinned": "/etc/xray/config.json",
-  "backup": "/etc/xray/config.json.bak.20260915-224903",
+  "backup": "/etc/xray/config.json.bak.20261001-171400",
   "applied": true,
+  "post_write_check": true,
   "restarted": true
 }

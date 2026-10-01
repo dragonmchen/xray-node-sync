@@ -1,6 +1,6 @@
 # xray-node-sync
 
-把本地 `node.txt`（机场订阅导出的 URI 列表）里的节点**逐个真测速度**，
+把节点候选（本地 `node.txt` + 订阅链接）里的节点**逐个真测速度**，
 按延迟排名后**只保留最快的 N 个**（默认 100）写进 Xray 的 `config.json`。
 
 ```bash
@@ -9,18 +9,34 @@ cd ~/coding/python/xray-node-sync
 ./apply.sh       # 正式应用：写入最快 100 个 + 重启 xray
 ```
 
-`node.txt` 就放在本目录（从 `~/download/node.txt` 拷来，以后更新订阅后覆盖它即可）。
+## 节点来源（自动合并去重）
+
+* 本地 `node.txt`（每行一个分享链接；其中的 `http(s)://` 行会被当作订阅 URL 拉取）；
+* `subscriptions.txt`（脚本目录下，每行一个订阅 URL，`#` 注释）——当前维护的 5 个免费订阅都在这里；
+* 命令行 `-s/--subscribe URL`（可重复）。
+
+订阅支持三种格式，自动识别：纯 URI 列表 / base64 整块 / Clash `proxies:` YAML。
+拉取顺序：先直连，失败自动走本机 Xray SOCKS（`socks5h://127.0.0.1:54321`）再试一次
+（GitHub raw 等直连不通时靠它兜底）。协议支持 `vless` / `trojan` / `vmess`
+（base64 JSON 链接与 Clash 条目）/ `ss`（SIP002 及 legacy 整块 base64）/ `hysteria2`。
 
 ## 它是怎么判断“可用”和“快”的
 
 不是只看端口能不能连通，而是**真跑一遍**：
 
-1. 解析每一行 `trojan://` / `vless://` / `hysteria2://` URI（地址、端口、密码、SNI、WS path/Host、alpn、fp…）；
+1. 解析每个节点的 URI / Clash 条目（地址、端口、密码、SNI、WS path/Host、alpn、fp、reality pbk/sid…）；
 2. 按「地址+端口+密码+SNI+传输+路径+Host+alpn+指纹」去重；
 3. 为每个候选节点起一个**临时 Xray 实例**（本地 SOCKS inbound → 该节点 outbound），
    然后 `curl --socks5-hostname 127.0.0.1:<port> https://www.gstatic.com/generate_204`，
    并且用 `time_total` **计时**（每个节点取样 2 次，取最快一次）；
-4. 返回 `204` 才算可用（走不通、密码错、SNI 错、被墙都拿不到 204）；
+4. 返回 `204` 才算可用（走不通、密码错、SNI 错、被墙都拿不到 204）。
+   **双站点严格口径（2026-10-01）**：探测 `gstatic` + `google.com` 两个 `generate_204`，
+   **所有采样全部 204** 才算可用、计时取两站点较慢者。起因：实测有"假活"节点对
+   gstatic 秒回 204（0.07s）却黑掉一切真实流量（劫持/白名单型），且 leastPing 恰好
+   优先选它 → 真实站点全超时；另有节点只要求"2 次过 1 次"时带着 Google 拉黑混进
+   前列。误杀代价低（候选池大），宁严勿松。配套：`/etc/xray/config.json` 的
+   observatory `probeUrl` 也改为 google 204（脚本不碰该字段，改动持久），让
+   leastPing 均衡器实时避开 Google 不通的节点；
 5. 主轮次高并发跑完后，对失败节点再做一次**低并发复测**（默认 timeout 15s），
    避免并发导致的误判（例如负载高时握手超时）；
 6. **按延迟升序排名，只保留最快的 `--keep` 个**（默认 100），更慢的直接不写入；
@@ -37,6 +53,29 @@ cd ~/coding/python/xray-node-sync
 协议支持取决于你机器上的 Xray 二进制：当前 `xray 26.3.27` 自带 `hysteria` 出站，
 所以 `hysteria2://` 节点**照常参与测速排名**（实测它时快时慢——QUIC 抖动大，
 慢于前 100 名时同样会被淘汰）。若换了不带该出站的二进制，对应节点会列为“跳过”。
+
+### 支持的传输 / 加密（以及“畸形链接”的修复）
+
+| 维度 | 支持的值 |
+| --- | --- |
+| 协议 | `trojan://`、`vless://`、`hysteria2://` |
+| 传输 | `ws`、`tcp`、`xhttp`（`mode=stream-up` / `packet-up` 原样透传，`mode=auto` 归一为 Xray 默认值）、`hysteria` |
+| 加密 | `security=tls`、`security=none`（明文，等同于不写）、`security=reality` |
+
+* `security=reality` 用于 `vless`/`trojan` + `tcp`：从链接取 `pbk`（publicKey，
+  必需）、`sid`（shortId）、`spx`（spiderX）、`sni`、`fp`，写进
+  `realitySettings`；链接没写 `fp` 时用 `chrome`。缺 `pbk` 的 reality 节点会
+  列为“跳过: reality without publicKey (pbk)”。
+* **备注里塞参数的畸形链接**：有些订阅（例如 `oneclickvpnkeys` 频道）把
+  `sni`/`fp`/`flow`/`sid`/`pbk` 全都塞在 `#` 后面的备注里，真正的 query 只写
+  `security=reality&type=tcp`。脚本会从备注里**回收缺失参数**（只补空值、绝不
+  覆盖已有值；备注里嵌了完整 `vless://…?…` 的也能取），因此这类节点同样能参与
+  测速。猜错了不会污染配置——测速拿不到 `204`，节点直接被淘汰。
+* 由于参数可能来自备注，地区 tag 的识别也跟着改进了：优先取备注尾部的
+  `US_89`、`FR|1.9MB/s` 这类真实提示，而不会把频道名 `oneclickvpnkeys`
+  读成 `ON`。
+* 其他跳过原因还包括 `protocol not supported by Xray (…)`、
+  `transport not supported here (…)`、`security not supported here (…)`。
 
 ## 每次运行都是“替换”，不是“累加”
 

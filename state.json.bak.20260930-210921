@@ -1,0 +1,12 @@
+{
+  "updated_at": "2026-09-30 20:48:31",
+  "node_file": "/home/dragonmchen.guest/coding/python/xray-node-sync/node.txt",
+  "managed_tags": [
+    "proxy_XX_91_240_86_70",
+    "proxy_RU_185_141_227_180"
+  ],
+  "latency": {
+    "proxy_XX_91_240_86_70": 0.852,
+    "proxy_RU_185_141_227_180": 3.981
+  }
+}

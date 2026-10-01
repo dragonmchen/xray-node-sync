@@ -1,0 +1,34 @@
+{
+  "updated_at": "2026-10-01 16:57:13",
+  "node_file": "/home/dragonmchen.guest/coding/python/xray-node-sync/node.txt",
+  "managed_tags": [
+    "proxy_XX_91_240_86_70",
+    "proxy_FR_172_64_146_66",
+    "proxy_XX_36_133_78_37",
+    "proxy_XX_47_129_238_241",
+    "proxy_XX_id-nl-01_mintrocket_org",
+    "proxy_XX_43_202_33_199",
+    "proxy_XX_188_114_96_3",
+    "proxy_XX_37_221_210_113",
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev",
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev_2",
+    "proxy_XX_cf_877774_xyz",
+    "proxy_XX_78_159_246_110",
+    "proxy_XX_germany_tofreedom_ru"
+  ],
+  "latency": {
+    "proxy_XX_91_240_86_70": 0.548,
+    "proxy_FR_172_64_146_66": 1.008,
+    "proxy_XX_36_133_78_37": 1.044,
+    "proxy_XX_47_129_238_241": 1.202,
+    "proxy_XX_id-nl-01_mintrocket_org": 1.217,
+    "proxy_XX_43_202_33_199": 1.239,
+    "proxy_XX_188_114_96_3": 2.589,
+    "proxy_XX_37_221_210_113": 2.917,
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev": 3.769,
+    "proxy_US_1579e6d9-6b57-4fb1-b080-9c9a6da46ae5_fly_dev_2": 4.574,
+    "proxy_XX_cf_877774_xyz": 4.881,
+    "proxy_XX_78_159_246_110": 5.27,
+    "proxy_XX_germany_tofreedom_ru": 5.637
+  }
+}
