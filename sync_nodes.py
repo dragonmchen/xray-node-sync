@@ -1,53 +1,58 @@
 #!/usr/bin/env python3
-"""Parse nodes from a local file (node.txt) and/or remote subscriptions, measure
-which nodes actually work and how fast they are, then keep only the fastest ones
-in the Xray config.
+"""从订阅源拉取节点，xray 与 sing-box **各自独立**测速，各自保留最快的前 N 个
+（默认各 50）写进对应配置。
 
-Typical workflow (run inside this directory, node.txt sits next to the script):
+数据来源只有两类（2026-10-12 起不再读 node.txt）：
+  * 脚本旁的 `subscriptions.txt`（每行一个 URL，`#` 注释；支持 `datepattern:`
+    模板，展开为“前天/昨天/今天”三天 × N=0..5）；
+  * 命令行 `-s/--subscribe URL`（可重复）。
 
+订阅支持三种格式，自动识别：纯 URI 列表 / base64 整块 / Clash `proxies:` YAML。
+
+核心思路（xray 与 sing-box 支持的协议/传输并不完全一致，故分开跑）：
+  * 候选池按“哪个核心能真跑”分区（partition_pool）：tuic 只有 sing-box 能跑，
+    xhttp 只有 xray 能跑，vless/vmess/trojan/ss/hysteria2 两边都进、各自测；
+  * 每个节点起一个**临时核心实例**（xray 用 `probe_once`，sing-box 用
+    `probe_once_singbox`：本地 SOCKS inbound -> 该出站），`curl --socks5-hostname`
+    打 gstatic + google 两个 `generate_204`：两个都 204 才算可用，计时取较慢者；
+  * 两侧各自：提前结束 -> 失败低并发复测 -> 保留前低并发统一复测 -> 按延迟排名，
+    取前 N 个；xray 写 `/etc/xray/config.json`，sing-box 写 `/etc/sing-box/config.json`；
+  * 运行时“选快汰死”由两侧核心自己完成：xray 的 observatory + leastPing 均衡器、
+    sing-box 的 urltest。`--watch` 守护模式周期性体检两侧已部署节点，健康数低于
+    阈值就自动重跑一次完整同步，维持可用节点数量。
+
+用法：
     ./preview.sh          # 预览：只测速排名，不改配置
-    ./apply.sh            # 正式应用：写入前 100 名并重载 xray
+    ./apply.sh            # 正式应用：写入最快的一批 + 重启 xray + 部署 sing-box
 
     python3 sync_nodes.py --dry-run              # same as preview.sh
     python3 sync_nodes.py --restart              # same as apply.sh
-    python3 sync_nodes.py --keep 50 --workers 32
+    python3 sync_nodes.py --keep 50 --sb-max 50
     python3 sync_nodes.py -s https://example.com/sub.txt   # 额外拉一个订阅
-
-Node sources are combined and de-duplicated as one pool:
-
-  * the local node file (`-n`, default node.txt) - its `http(s)://` lines are
-    themselves treated as subscription URLs;
-  * every `-s/--subscribe URL` given on the command line (repeatable);
-  * `subscriptions.txt` next to the script, when it exists (one URL per line,
-    `#` comments allowed).
-
-A downloaded subscription may be plain `scheme://` URI lines, a single
-base64 blob of such lines, or a Clash `proxies:` YAML document; all three are
-recognized (see parse_subscription()).
-
-For every node a throwaway Xray instance is started (local SOCKS inbound plus
-that single outbound) and `curl --socks5-hostname 127.0.0.1:<port>` is run
-through it against both gstatic and google.com `generate_204` endpoints: only
-when BOTH return 204 the node counts as usable (a gstatic-only hijack node
-would otherwise poison the leastPing balancer), and the slower of the two is
-used to rank its speed.
+    python3 sync_nodes.py --singbox-only         # 只刷新 sing-box
+    python3 sync_nodes.py --watch                # 守护模式：见底自动重同步
 """
 
 from __future__ import annotations
 
 import argparse
+import atexit
 import base64
 import concurrent.futures
+import hashlib
 import json
 import os
 import re
 import shutil
+import signal
 import socket
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import urllib.parse
+from datetime import date, timedelta
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_NODE_FILE = os.path.join(SCRIPT_DIR, "node.txt")
@@ -58,9 +63,11 @@ FETCH_TIMEOUT = 20.0          # seconds allowed per subscription download
 # Local Xray SOCKS inbound: tried as a fallback when a subscription URL is not
 # reachable directly (GitHub raw etc. is often blocked without a proxy).
 FALLBACK_PROXY = "socks5h://127.0.0.1:54321"
-DEFAULT_KEEP = 100          # 只保留最快的前 N 个节点（0 = 不限制）
+DEFAULT_KEEP = 50           # 只保留最快的前 N 个节点（0 = 不限制）；xray / sing-box 各自独立取前 N
+DEFAULT_SB_MAX = 50         # sing-box 侧最多保留多少个节点出站（另加 via-xray）
 DEFAULT_SAMPLES = 2         # 测速时每个节点成功请求的次数（取最快一次）
 XRAY_BIN = "xray"
+SB_BIN = "sing-box"
 ASSET_DIR = "/etc/xray"
 # 双站点探测(2026-10-01): 只测 gstatic 会被"假活"节点骗过 —— 实测 mz.hkychina.com
 # 对 gstatic 秒回 204(0.07s) 却黑掉一切真实流量(劫持/白名单型节点), 且 leastPing
@@ -285,6 +292,40 @@ def node_supported(node):
     return None
 
 
+def singbox_supported(node):
+    """True 当 sing-box 能承载该节点（to_singbox_outbound 返回非 None）。
+
+    与 node_supported() 分开判定：两边支持的协议/传输并不一致——
+      * tuic            只有 sing-box 能跑（xray 无此出站）
+      * xhttp           只有 xray 能跑（sing-box 无此出站）
+      * grpc/httpupgrade sing-box 能跑、本脚本的 xray 侧不建模
+    相同的 vless/vmess/trojan/ss/hysteria2 两边都能跑。
+    """
+    return to_singbox_outbound(node, "_probe") is not None
+
+
+def partition_pool(pool):
+    """把候选池按“哪个核心能真跑”拆成 (xray_pool, singbox_pool, skipped)。
+
+    同一节点可能同时进两侧（协议/传输两边都支持时），各自用自己的核心独立测速；
+    只有一侧能跑的（tuic 归 sing-box、xhttp 归 xray）只进对应一侧；两边都跑不了
+    的进 skipped（[(reason, label)]）。
+    """
+    xray_pool, sb_pool, skipped = [], [], []
+    for node in pool:
+        reason = node_supported(node)
+        in_x = reason is None
+        in_sb = singbox_supported(node)
+        if in_x:
+            xray_pool.append(node)
+        if in_sb:
+            sb_pool.append(node)
+        if not in_x and not in_sb:
+            skipped.append((reason or "两边核心均不支持该节点",
+                            node["label"] or node["address"]))
+    return xray_pool, sb_pool, skipped
+
+
 def load_nodes(node_file):
     """Read + de-duplicate nodes; returns (nodes, skipped list of (reason, label))."""
     with open(node_file, encoding="utf-8", errors="replace") as fh:
@@ -313,6 +354,32 @@ def load_nodes_lines(lines):
 # --------------------------------------------------------------------------- #
 # subscription downloads: plain URI list / base64 blob / Clash YAML
 # --------------------------------------------------------------------------- #
+# subscriptions.txt 里 `datepattern:` 模板行的日期窗口：前天、昨天、今天（共 3 天），
+# 每个日期再展开 N=0..5 共 6 份。
+DATEPATTERN_OFFSETS = (-2, -1, 0)   # 前天 / 昨天 / 今天
+
+
+def expand_datepatterns(urls):
+    """`datepattern:` 模板 -> 具体订阅 URL 列表。
+
+    模板占位符：{year} {month} {day}（month/day 两位补零）、{ymd}（YYYYMMDD）、
+    {n}（0..5）。来自 update_nodes.py 的按日期轮换订阅源，每天自动出新文件。
+    """
+    out = []
+    for u in urls:
+        if not u.startswith("datepattern:"):
+            out.append(u)
+            continue
+        tmpl = u[len("datepattern:"):].strip()
+        for off in DATEPATTERN_OFFSETS:
+            d = date.today() + timedelta(days=off)
+            for n in range(6):
+                out.append(tmpl.format(
+                    year=d.year, month="%02d" % d.month, day="%02d" % d.day,
+                    ymd=d.strftime("%Y%m%d"), n=n))
+    return out
+
+
 def fetch_subscription(url):
     """Download one subscription; direct first, then via the local Xray SOCKS.
 
@@ -668,6 +735,67 @@ def outbound_key(outbound):
 # --------------------------------------------------------------------------- #
 # availability probing (real end-to-end check through each node)
 # --------------------------------------------------------------------------- #
+# 每个节点都会起一个临时核心进程。正常路径下 probe_once* 的 finally 会 terminate，
+# 但若主进程被 SIGTERM/SIGKILL 打断（例如 pkill、Ctrl-C、systemd 停止），finally
+# 不一定来得及跑，临时核心会被 init 收养、长期残留（实测泄漏过 20+ 个、每个 ~30MB）。
+# 这里登记所有在跑的临时核心 PID，并在 atexit + SIGTERM/SIGINT 时统一清理，
+# 这样才能安全地把并发开大而不怕中断后漏进程。
+_LIVE_PROCS = set()
+_LIVE_PROCS_LOCK = threading.Lock()
+
+
+def _register_proc(proc):
+    with _LIVE_PROCS_LOCK:
+        _LIVE_PROCS.add(proc)
+
+
+def _unregister_proc(proc):
+    with _LIVE_PROCS_LOCK:
+        _LIVE_PROCS.discard(proc)
+
+
+def _kill_live_procs():
+    """terminate/kill 所有还登记着的临时核心进程（幂等，可在信号/atexit 里调用）。"""
+    with _LIVE_PROCS_LOCK:
+        procs = list(_LIVE_PROCS)
+        _LIVE_PROCS.clear()
+    for proc in procs:
+        try:
+            proc.terminate()
+        except OSError:
+            pass
+    deadline = time.time() + 2.0
+    for proc in procs:
+        try:
+            proc.wait(timeout=max(0.1, deadline - time.time()))
+        except Exception:
+            try:
+                proc.kill()
+            except OSError:
+                pass
+
+
+def _install_cleanup_handlers():
+    atexit.register(_kill_live_procs)
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        prev = signal.getsignal(sig)
+
+        def _handler(signum, frame, _prev=prev):
+            _kill_live_procs()
+            if callable(_prev) and _prev not in (signal.SIG_DFL, signal.SIG_IGN):
+                _prev(signum, frame)
+            else:
+                signal.signal(signum, signal.SIG_DFL)
+                os.kill(os.getpid(), signum)
+        try:
+            signal.signal(sig, _handler)
+        except (ValueError, OSError):
+            pass  # 非主线程或平台不支持，忽略
+
+
+_install_cleanup_handlers()
+
+
 def free_port() -> int:
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
@@ -685,11 +813,46 @@ def wait_for_port(port: int, timeout: float = 3.0) -> bool:
     return False
 
 
+def _curl_dual_204(port, timeout, samples):
+    """curl 两个 generate_204 站点，全部 204 才算通过，计时取较慢者。
+
+    返回 (ok, latency, reason)。严格口径(2026-10-01)：任一样本失败即整节点
+    淘汰——排名时"2次里过1次"的节点实测会带着 Google 拉黑问题混进前列(leastPing
+    恰好优先选它)。误杀代价低(候选池大)，宁严勿松。
+    """
+    best, last_code = None, "none"
+    for url in PROBE_URLS:
+        url_best = None
+        for _ in range(max(1, samples)):
+            result = subprocess.run(
+                ["curl", "-s", "-o", "/dev/null", "-w", "%{http_code} %{time_total}",
+                 "--max-time", str(timeout), "--socks5-hostname",
+                 "127.0.0.1:%d" % port, url],
+                capture_output=True, text=True, timeout=timeout + 5,
+            )
+            parts = (result.stdout or "").strip().split()
+            code = parts[0] if parts else "000"
+            last_code = code
+            if code == PROBE_EXPECTED and len(parts) > 1:
+                try:
+                    value = float(parts[1])
+                except ValueError:
+                    value = None
+                if value is not None:
+                    url_best = value if url_best is None else min(url_best, value)
+            else:
+                return False, None, "HTTP %s (%s)" % (code, url.split("/")[2])
+        if url_best is None:
+            return False, None, "HTTP %s (%s)" % (last_code, url.split("/")[2])
+        best = url_best if best is None else max(best, url_best)
+    return True, best, "双204 %.2fs" % best
+
+
 def probe_once(outbound, port, workdir, timeout, samples):
     """Run one throwaway Xray with a single outbound and curl through its SOCKS port.
 
-    Returns (ok, latency_seconds, reason): ok is True when at least one request
-    returned 204, latency is the fastest successful request time.
+    Returns (ok, latency_seconds, reason): ok is True when both probe sites
+    returned 204, latency is the slower of the two.
     """
     config_path = os.path.join(workdir, "config.json")
     error_log = os.path.join(workdir, "error.log")
@@ -712,6 +875,7 @@ def probe_once(outbound, port, workdir, timeout, samples):
         [XRAY_BIN, "run", "-config", config_path],
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=env,
     )
+    _register_proc(proc)
     try:
         if not wait_for_port(port):
             lines = []
@@ -720,39 +884,11 @@ def probe_once(outbound, port, workdir, timeout, samples):
                     lines = fh.read().strip().splitlines()
             detail = lines[-1] if lines else "no log"
             return False, None, "xray did not listen (%s)" % detail
-
-        best, last_code = None, "none"
-        for url in PROBE_URLS:
-            url_best = None
-            for _ in range(max(1, samples)):
-                result = subprocess.run(
-                    ["curl", "-s", "-o", "/dev/null", "-w", "%{http_code} %{time_total}",
-                     "--max-time", str(timeout), "--socks5-hostname",
-                     "127.0.0.1:%d" % port, url],
-                    capture_output=True, text=True, timeout=timeout + 5,
-                )
-                parts = (result.stdout or "").strip().split()
-                code = parts[0] if parts else "000"
-                last_code = code
-                if code == PROBE_EXPECTED and len(parts) > 1:
-                    try:
-                        value = float(parts[1])
-                    except ValueError:
-                        value = None
-                    if value is not None:
-                        url_best = value if url_best is None else min(url_best, value)
-                else:
-                    # 严格口径(2026-10-01): 任一样本失败即整节点淘汰 —— 排名时
-                    # "2次里过1次"的节点实测会带着 Google 拉黑问题混进前列
-                    # (leastPing 恰好优先选它)。误杀代价低(候选池大), 宁严勿松。
-                    return False, None, "HTTP %s (%s)" % (code, url.split("/")[2])
-            if url_best is None:
-                return False, None, "HTTP %s (%s)" % (last_code, url.split("/")[2])
-            best = url_best if best is None else max(best, url_best)
-        return True, best, "双204 %.2fs" % best
+        return _curl_dual_204(port, timeout, samples)
     except subprocess.TimeoutExpired:
         return False, None, "probe timeout"
     finally:
+        _unregister_proc(proc)
         proc.terminate()
         try:
             proc.wait(timeout=3)
@@ -761,11 +897,89 @@ def probe_once(outbound, port, workdir, timeout, samples):
             proc.wait(timeout=3)
 
 
-def probe_node(node, timeout, attempts, samples):
+def probe_once_singbox(sb_outbound, port, workdir, timeout, samples):
+    """起一个临时 sing-box（本地 SOCKS -> 该出站）跑一遍双 204 探测。
+
+    sing-box 侧独立测速用：它和 xray 支持的协议/传输并不完全一致（tuic 只有
+    sing-box 能跑；xhttp 只有 xray 能跑），所以两边各自用自己的核心真测一遍。
+    返回 (ok, latency, reason)，语义与 probe_once() 相同。
+    """
+    config_path = os.path.join(workdir, "config.json")
+    error_log = os.path.join(workdir, "error.log")
+    tag = sb_outbound.get("tag", "probe")
+    config = {
+        "log": {"level": "warn", "timestamp": False, "output": error_log},
+        "inbounds": [{
+            "type": "socks",
+            "tag": "socks-in",
+            "listen": "127.0.0.1",
+            "listen_port": port,
+        }],
+        "outbounds": [sb_outbound, {"type": "direct", "tag": "direct"}],
+        "route": {"rules": [], "final": tag},
+    }
+    with open(config_path, "w") as fh:
+        json.dump(config, fh)
+
+    proc = subprocess.Popen(
+        [SB_BIN, "run", "-c", config_path, "-D", workdir],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    _register_proc(proc)
+    try:
+        if not wait_for_port(port):
+            lines = []
+            if os.path.exists(error_log):
+                with open(error_log, errors="replace") as fh:
+                    lines = fh.read().strip().splitlines()
+            detail = lines[-1] if lines else "no log"
+            return False, None, "sing-box did not listen (%s)" % detail
+        return _curl_dual_204(port, timeout, samples)
+    except subprocess.TimeoutExpired:
+        return False, None, "probe timeout"
+    finally:
+        _unregister_proc(proc)
+        proc.terminate()
+        try:
+            proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait(timeout=3)
+
+
+def probe_node(node, timeout, attempts, samples, engine="xray"):
     """Try a node up to `attempts` times; usable if any attempt returns 204.
+
+    engine="xray"      -> 起临时 Xray 跑（build_outbound）
+    engine="sing-box"  -> 起临时 sing-box 跑（to_singbox_outbound；sing-box 跑不了
+                          的传输/协议直接判失败，不起进程）
 
     The reported latency is the fastest successful request across all attempts.
     """
+    if engine == "sing-box":
+        sb_outbound = to_singbox_outbound(node, "probe")
+        if sb_outbound is None:
+            return {"node": node, "ok": False, "reason": "sing-box 无法承载该节点",
+                    "latency": None, "elapsed": 0.0, "engine": engine}
+        last_reason, elapsed, best = "not tested", 0.0, None
+        for _ in range(attempts):
+            workdir = tempfile.mkdtemp(prefix="sb-node-sync-")
+            started = time.time()
+            try:
+                ok, latency, reason = probe_once_singbox(
+                    sb_outbound, free_port(), workdir, timeout, samples)
+            finally:
+                shutil.rmtree(workdir, ignore_errors=True)
+            elapsed += time.time() - started
+            if ok:
+                best = latency if best is None else min(best, latency)
+                return {"node": node, "ok": True, "reason": reason,
+                        "latency": round(best, 3), "elapsed": round(elapsed, 2),
+                        "engine": engine}
+            last_reason = reason
+        return {"node": node, "ok": False, "reason": last_reason, "latency": None,
+                "elapsed": round(elapsed, 2), "engine": engine}
+
     outbound = build_outbound(node, "probe")
     last_reason, elapsed, best = "not tested", 0.0, None
     for _ in range(attempts):
@@ -781,31 +995,58 @@ def probe_node(node, timeout, attempts, samples):
             best = latency if best is None else min(best, latency)
             return {"node": node, "ok": True, "reason": reason,
                     "latency": round(best, 3), "elapsed": round(elapsed, 2),
-                    "outbound": outbound}
+                    "outbound": outbound, "engine": engine}
         last_reason = reason
     return {"node": node, "ok": False, "reason": last_reason, "latency": None,
-            "elapsed": round(elapsed, 2), "outbound": outbound}
+            "elapsed": round(elapsed, 2), "outbound": outbound, "engine": engine}
 
 
-def probe_all(nodes, workers, timeout, attempts, samples=DEFAULT_SAMPLES):
-    """Probe every node concurrently, keeping the input order of the results."""
+def probe_all(nodes, workers, timeout, attempts, samples=DEFAULT_SAMPLES,
+              early_stop=None, engine="xray", label="xray"):
+    """Probe every node concurrently, keeping the input order of the results.
+
+    early_stop: callable(usable_latencies -> bool); when it returns True the
+    not-yet-started probes are cancelled and untested nodes are reported as
+    "(提前结束)" failures — used to stop once we already hold enough fast nodes.
+    engine 选择底层核心（xray / sing-box）；label 仅用于进度行前缀，便于区分两侧。
+    """
     results = [None] * len(nodes)
+    usable_lats = []
+    stop_reason = None
     done = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(probe_node, node, timeout, attempts, samples): idx
+        futures = {pool.submit(probe_node, node, timeout, attempts, samples, engine): idx
                    for idx, node in enumerate(nodes)}
-        for future in concurrent.futures.as_completed(futures):
-            idx = futures[future]
-            results[idx] = future.result()
-            done += 1
-            row = results[idx]
-            speed = "%5.2fs" % row["latency"] if row["ok"] else "  -  "
-            print("  [%3d/%3d] %-4s %-17s %-4s %s  %s" % (
-                done, len(nodes), "OK" if row["ok"] else "FAIL",
-                row["node"]["address"][:17], geo_tag(row["node"]), speed,
-                row["reason"],
-            ), file=sys.stderr, flush=True)
-    return results
+        try:
+            for future in concurrent.futures.as_completed(futures):
+                idx = futures[future]
+                results[idx] = future.result()
+                done += 1
+                row = results[idx]
+                if row["ok"]:
+                    usable_lats.append(row["latency"])
+                speed = "%5.2fs" % row["latency"] if row["ok"] else "  -  "
+                print("  [%s %3d/%3d] %-4s %-17s %-4s %s  %s" % (
+                    label, done, len(nodes), "OK" if row["ok"] else "FAIL",
+                    row["node"]["address"][:17], geo_tag(row["node"]), speed,
+                    row["reason"],
+                ), file=sys.stderr, flush=True)
+                if early_stop and early_stop(usable_lats):
+                    stop_reason = ("已达 %d 个可用且延迟中位数 %.2fs ≤ 阈值，"
+                                   "提前结束剩余 %d 个"
+                                   % (len(usable_lats),
+                                      sorted(usable_lats)[len(usable_lats) // 2],
+                                      len(nodes) - done))
+                    print("⚡ %s" % stop_reason, file=sys.stderr, flush=True)
+                    break
+        finally:
+            if stop_reason:
+                pool.shutdown(wait=False, cancel_futures=True)
+    for idx, row in enumerate(results):
+        if row is None:
+            results[idx] = {"ok": False, "node": nodes[idx],
+                            "latency": None, "reason": "(提前结束，未测)"}
+    return results, stop_reason
 
 
 def rank_usable(results, keep):
@@ -817,7 +1058,96 @@ def rank_usable(results, keep):
     return usable, []
 
 
-def refine_ranking(rows, workers, timeout, samples):
+TCP_SCAN_EXEMPT = ("hysteria2", "tuic")   # QUIC/UDP 传输，TCP 连通说明不了问题
+_TCP_CACHE = {}   # (address, port) -> 握手秒数 或 None(死端点)；xray/sing-box 两池共享
+
+
+def _endpoint_alive(address, port, timeout):
+    """DNS 解析后逐个候选 IP 做裸 TCP 连接，返回首次握手成功的耗时(秒)；
+    全部失败则返回 None（调用方据此判断存活并记录延迟）。"""
+    try:
+        infos = socket.getaddrinfo(address, int(port), type=socket.SOCK_STREAM)
+    except OSError:
+        return None
+    for _fam, _typ, _proto, _canon, sa in infos:
+        try:
+            started = time.time()
+            s = socket.create_connection(sa[:2], timeout=timeout)
+            s.close()
+            return time.time() - started
+        except OSError:
+            continue
+    return None
+
+
+def tcp_presize(pool, workers=500, timeout=1.5, max_candidates=0):
+    """TCP 预扫描（移植自 update_nodes.py）：在为每个节点起临时 Xray 之前，
+    先用裸 TCP 连接把 server:port 已死的候选过滤掉。同一 (地址, 端口) 只扫
+    一次；hysteria2/tuic 豁免。扫描结果写入模块级 _TCP_CACHE，xray/sing-box
+    两侧候选池共享同一批端点，第二次调用直接命中缓存、不再重扫。
+
+    预扫描顺带记录每个端点的握手耗时。当 max_candidates > 0 时，把可扫描的
+    存活节点按握手延迟升序排序、只留前 max_candidates 个进入测速池（参照
+    update_nodes.py 的 --max-candidates 思路，用握手延迟做“先测最有希望的”
+    预算上限）；hysteria2/tuic 无法用 TCP 握手衡量，一律保留在末尾，不受上限
+    影响。max_candidates <= 0 表示不限制（默认），只做死端点过滤。
+
+    返回留下的节点列表。"""
+    endpoints = {}
+    for idx, node in enumerate(pool):
+        if node.get("scheme") in TCP_SCAN_EXEMPT:
+            continue
+        endpoints.setdefault((node["address"], node["port"]), []).append(idx)
+
+    # 只扫缓存里没有的端点；已扫过的（含已知死端点）直接复用，两池共享一次扫描。
+    pending = [ep for ep in endpoints if ep not in _TCP_CACHE]
+
+    def scan(ep):
+        addr, port = ep
+        return ep, _endpoint_alive(addr, port, timeout)
+
+    done = 0
+    if pending:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as ex:
+            for ep, lat in ex.map(scan, pending):
+                _TCP_CACHE[ep] = lat
+                done += 1
+                if done % 500 == 0:
+                    print("  TCP 预扫描 %d/%d（复用缓存 %d），可达 %d"
+                          % (done, len(pending), len(endpoints) - len(pending),
+                             sum(1 for e in endpoints if _TCP_CACHE.get(e) is not None)),
+                          file=sys.stderr, flush=True)
+
+    latency = {ep: _TCP_CACHE[ep] for ep in endpoints
+               if _TCP_CACHE.get(ep) is not None}
+
+    scannable = [node for node in pool
+                 if node.get("scheme") not in TCP_SCAN_EXEMPT
+                 and (node["address"], node["port"]) in latency]
+    exempt = [node for node in pool if node.get("scheme") in TCP_SCAN_EXEMPT]
+    # 握手快的排前面（真正进测速池的顺序由它决定，早停直接沿用这个顺序）。
+    scannable.sort(key=lambda n: latency[(n["address"], n["port"])])
+    total_alive = len(scannable) + len(exempt)
+    dropped_dead = len(pool) - total_alive
+
+    capped = False
+    if max_candidates and len(scannable) > max_candidates:
+        scannable = scannable[:max_candidates]
+        capped = True
+    kept = scannable + exempt
+
+    msg = ("TCP 预扫描完成：端点可达 %d/%d（本次新扫 %d，复用缓存 %d），"
+           "预过滤掉 %d 个死端点节点" % (
+               len(latency), len(endpoints), done,
+               len(endpoints) - len(pending), dropped_dead))
+    if capped:
+        msg += ("；按握手延迟取前 %d 个可扫描候选进入测速（另有 %d 个 QUIC 豁免节点"
+                "不受上限影响），共 %d" % (max_candidates, len(exempt), len(kept)))
+    print(msg)
+    return kept
+
+
+def refine_ranking(rows, workers, timeout, samples, engine="xray"):
     """Re-measure usable nodes at lower concurrency so the top-N cut is fair.
 
     The first pass runs at high concurrency, which inflates latency unevenly
@@ -826,7 +1156,8 @@ def refine_ranking(rows, workers, timeout, samples):
     candidates again on equal terms; a node that fails this second measurement
     simply keeps its earlier — working — latency.
     """
-    fresh = probe_all([r["node"] for r in rows], workers, timeout, 1, samples)
+    fresh = probe_all([r["node"] for r in rows], workers, timeout, 1, samples,
+                      engine=engine)[0]
     improved = 0
     for row, new in zip(rows, fresh):
         if new["ok"]:
@@ -1131,31 +1462,554 @@ def restart_service():
 
 
 # --------------------------------------------------------------------------- #
+# sing-box 部署（2026-10-03，参考另一台机器的 update_nodes.py）
+# xray 只装严格验证的最快节点；sing-box 额外承载：
+#   * hysteria2（xray 出站也支持，转换过去让 urltest 统一体检）
+#   * tuic（sing-box 独占协议，xray 跑不了，无法本地验证，交给 urltest 体检）
+#   * 已验证节点 + TCP 存活但未过 204 的填充节点（urltest 每 3 分钟体检，
+#     通不过的自动不承载流量），
+# 并把整台 xray（via-xray）作为一个成员挂进 urltest，final=auto 自动选路。
+# --------------------------------------------------------------------------- #
+SB_ONLY_SCHEMES = ("tuic",)
+SB_CONFIG = "/etc/sing-box/config.json"
+SB_WORKDIR = "/var/lib/sing-box"
+SB_RULESET_URLS = {
+    "geosite-cn.srs": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs",
+    "geoip-cn.srs": "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs",
+}
+# sing-box 只认这组 uTLS 指纹；链接里常见的 fp=unsafe 等直接忽略（走标准 TLS）
+SB_UTLS_FINGERPRINTS = {
+    "", "chrome", "firefox", "safari", "ios", "android", "edge", "360",
+    "qq", "random", "randomized", "randomizednoalpn", "chrome psk",
+}
+
+
+def to_singbox_outbound(node, tag):
+    """node dict -> sing-box outbound；sing-box 跑不了的传输/协议返回 None。"""
+    scheme = node["scheme"]
+    ob = {"tag": tag, "server": node["address"], "server_port": int(node["port"])}
+
+    if scheme == "vless":
+        ob["type"] = "vless"
+        ob["uuid"] = node["user"]
+        if node.get("flow"):
+            ob["flow"] = node["flow"]
+    elif scheme == "vmess":
+        ob["type"] = "vmess"
+        ob["uuid"] = node["user"]
+        ob["security"] = "auto"
+    elif scheme == "trojan":
+        ob["type"] = "trojan"
+        ob["password"] = node["user"]
+    elif scheme == "ss":
+        if not node.get("ss_method"):
+            return None
+        ob["type"] = "shadowsocks"
+        ob["method"] = node["ss_method"]
+        ob["password"] = node["user"]
+    elif scheme == "hysteria2":
+        ob["type"] = "hysteria2"
+        ob["password"] = node["user"]
+        ob["tls"] = {"enabled": True,
+                     "server_name": node.get("sni") or node["address"],
+                     "insecure": bool(node.get("insecure"))}
+        return ob
+    elif scheme == "tuic":
+        uuid, _, pwd = node["user"].partition(":")
+        if not uuid:
+            return None
+        ob["type"] = "tuic"
+        ob["uuid"] = uuid
+        ob["password"] = pwd
+        ob["congestion_control"] = "bbr"
+        ob["tls"] = {"enabled": True,
+                     "server_name": node.get("sni") or node["address"],
+                     "insecure": bool(node.get("insecure")),
+                     "alpn": node.get("alpn") or ["h3"]}
+        return ob
+    else:
+        return None
+
+    net = node["network"]
+    if net == "xhttp":
+        return None  # sing-box 没有 xhttp 出站
+
+    sec = node["security"]
+    fp = (node.get("fp") or "").lower()
+    if sec == "tls":
+        tls = {"enabled": True,
+               "server_name": node.get("sni") or node.get("host") or node["address"],
+               "insecure": bool(node.get("insecure"))}
+        if fp in SB_UTLS_FINGERPRINTS and fp:
+            tls["utls"] = {"enabled": True, "fingerprint": fp}
+        ob["tls"] = tls
+    elif sec == "reality":
+        if not node.get("pbk"):
+            return None
+        tls = {"enabled": True,
+               "server_name": node.get("sni") or node["address"],
+               "reality": {"enabled": True, "public_key": node["pbk"],
+                           "short_id": node.get("sid") or ""}}
+        if fp in SB_UTLS_FINGERPRINTS and fp:
+            tls["utls"] = {"enabled": True,
+                           "fingerprint": fp if fp.startswith("random") else "chrome"}
+        else:
+            tls["utls"] = {"enabled": True, "fingerprint": "chrome"}
+        ob["tls"] = tls
+
+    if net == "ws":
+        tr = {"type": "ws", "path": node.get("path") or "/"}
+        if node.get("host"):
+            tr["headers"] = {"Host": node["host"]}
+        ob["transport"] = tr
+    elif net == "httpupgrade":
+        tr = {"type": "httpupgrade", "path": node.get("path") or "/"}
+        if node.get("host"):
+            tr["host"] = node["host"]
+        ob["transport"] = tr
+    elif net == "grpc":
+        tr = {"type": "grpc", "service_name": node.get("path") or ""}
+        if node.get("mode") == "multi":
+            tr["multi_mode"] = True
+        ob["transport"] = tr
+    elif net not in ("tcp", "hysteria", ""):
+        return None
+    return ob
+
+
+def ensure_sb_rulesets():
+    """下载 sing-box 的 CN 直连规则集（.srs）；失败只降级为不做 CN 分流。"""
+    sudo_run(["mkdir", "-p", SB_WORKDIR])
+    got = []
+    for fname, url in SB_RULESET_URLS.items():
+        remote_path = os.path.join(SB_WORKDIR, fname)
+        if sudo_run(["test", "-s", remote_path]).returncode != 0:
+            local_tmp = os.path.join(tempfile.gettempdir(), "sb-" + fname)
+            try:
+                result = subprocess.run(["curl", "-sL", "--max-time", "30", url],
+                                        capture_output=True, timeout=40)
+                if result.returncode == 0 and len(result.stdout) > 1000:
+                    with open(local_tmp, "wb") as fh:
+                        fh.write(result.stdout)
+                    sudo_run(["cp", local_tmp, remote_path])
+                    os.unlink(local_tmp)
+            except Exception:
+                pass
+        if sudo_run(["test", "-s", remote_path]).returncode == 0:
+            got.append(fname)
+    print("sing-box 规则集: %s" % (", ".join(got) or "无（跳过 CN 直连分流）"))
+    return set(got)
+
+
+def read_singbox_config():
+    """读取 /etc/sing-box/config.json（失败返回空 dict）。"""
+    result = sudo_run(["cat", SB_CONFIG], capture_output=True, text=True)
+    if result.returncode != 0:
+        return {}
+    try:
+        return json.loads(result.stdout)
+    except ValueError:
+        return {}
+
+
+def singbox_outbound_to_node(ob):
+    """sing-box 出站 -> node dict（尽力反推，供守护模式体检复用）。
+
+    只覆盖本脚本 to_singbox_outbound() 会写出的类型；认不出返回 None。
+    """
+    typ = ob.get("type")
+    scheme = {"shadowsocks": "ss"}.get(typ, typ)
+    if scheme not in ("vless", "vmess", "trojan", "ss", "hysteria2", "tuic"):
+        return None
+    address = ob.get("server", "")
+    try:
+        port = int(ob.get("server_port") or 0)
+    except (TypeError, ValueError):
+        return None
+
+    if scheme in ("vless", "vmess"):
+        user = ob.get("uuid", "")
+    elif scheme == "trojan":
+        user = ob.get("password", "")
+    elif scheme == "ss":
+        user = ob.get("password", "")
+    elif scheme == "hysteria2":
+        user = ob.get("password", "")
+    else:  # tuic
+        user = "%s:%s" % (ob.get("uuid", ""), ob.get("password", ""))
+
+    tls = ob.get("tls") or {}
+    reality = tls.get("reality") or {}
+    if reality.get("enabled"):
+        security, sni = "reality", tls.get("server_name", "")
+        pbk, sid = reality.get("public_key", ""), reality.get("short_id", "")
+    elif tls.get("enabled"):
+        security, sni, pbk, sid = "tls", tls.get("server_name", ""), "", ""
+    else:
+        security, sni, pbk, sid = "", "", "", ""
+    fp = (tls.get("utls") or {}).get("fingerprint", "")
+
+    tr = ob.get("transport") or {}
+    net = tr.get("type", "tcp")
+    host = (tr.get("headers") or {}).get("Host") or tr.get("host", "")
+    if net == "grpc":
+        path = "/" + (tr.get("service_name") or "")
+    else:
+        path = tr.get("path", "/")
+    return {
+        "scheme": scheme, "user": user, "address": address, "port": port,
+        "security": security, "sni": sni, "network": net,
+        "path": _fix_path(path), "host": host, "mode": "",
+        "alpn": _uniq_low([str(a).lower() for a in (tls.get("alpn") or [])]),
+        "fp": fp, "flow": ob.get("flow", ""), "pbk": pbk, "sid": sid, "spx": "",
+        "insecure": bool(tls.get("insecure")),
+        "ss_method": ob.get("method", "") if scheme == "ss" else "",
+        "label": ob.get("tag", ""), "raw": ob.get("tag", ""),
+    }
+
+
+def build_singbox_config(outbounds, rulesets):
+    rules = [{"action": "sniff"},
+             {"ip_is_private": True, "action": "route", "outbound": "direct"}]
+    rule_set = []
+    for fname in sorted(rulesets):
+        rules.append({"rule_set": [fname[:-4]], "action": "route",
+                      "outbound": "direct"})
+        rule_set.append({"type": "local", "tag": fname[:-4], "format": "binary",
+                         "path": os.path.join(SB_WORKDIR, fname)})
+    return {
+        "log": {"level": "warn", "timestamp": True},
+        "inbounds": [
+            {"type": "socks", "tag": "socks-in", "listen": "::", "listen_port": 10808},
+            {"type": "http", "tag": "http-in", "listen": "::", "listen_port": 10809},
+        ],
+        "outbounds": [
+            {"type": "urltest", "tag": "auto", "outbounds": [o["tag"] for o in outbounds],
+             "url": "https://www.google.com/generate_204",
+             "interval": "3m", "tolerance": 50},
+            *outbounds,
+            {"type": "direct", "tag": "direct"},
+        ],
+        "route": {"rules": rules, "rule_set": rule_set, "final": "auto"},
+    }
+
+
+def deploy_singbox(sb_nodes, sb_max):
+    """构建并部署 sing-box 配置；返回部署的节点数（0 = 未部署/失败保留旧配置）。
+
+    sb_nodes 已是 sing-box 侧独立测速、按延迟从快到慢排好序的节点（含 tuic 等只有
+    sing-box 能跑的协议——它们也走 sing-box 自己的探测）。这里只做去重 + 截断到
+    sb_max + 追加 via-xray 成员，交给 urltest 运行时自动选路。
+    """
+    rulesets = ensure_sb_rulesets()
+    outbounds, seen = [], set()
+    for node in sb_nodes:
+        if len(outbounds) >= sb_max:
+            break
+        key = node_key(node)
+        if key in seen:
+            continue
+        seen.add(key)
+        ob = to_singbox_outbound(node, "sb%d" % (len(outbounds) + 1))
+        if ob:
+            outbounds.append(ob)
+    if not outbounds:
+        print("sing-box: 没有可部署的节点，保留现有配置")
+        return 0
+    # 整台 xray 作为 urltest 的一个成员（它的 socks-in 在 127.0.0.1:54321）
+    outbounds.append({"type": "socks", "tag": "via-xray", "server": "127.0.0.1",
+                      "server_port": 54321, "version": "5"})
+
+    cfg = build_singbox_config(outbounds, rulesets)
+    fd, tmp = tempfile.mkstemp(suffix=".json", prefix="sb-config-")
+    with os.fdopen(fd, "w", encoding="utf-8") as fh:
+        json.dump(cfg, fh, indent=2, ensure_ascii=False)
+        fh.write("\n")
+    check = subprocess.run(["sing-box", "check", "-c", tmp],
+                           capture_output=True, text=True)
+    if check.returncode != 0:
+        print("sing-box 配置校验失败，保留现有配置:\n%s%s"
+              % (check.stdout, check.stderr))
+        os.unlink(tmp)
+        return 0
+    backup = ""
+    if sudo_run(["test", "-f", SB_CONFIG]).returncode == 0:
+        backup = "%s.bak.%s" % (SB_CONFIG, time.strftime("%Y%m%d-%H%M%S"))
+        sudo_run(["cp", "-p", SB_CONFIG, backup])
+    if sudo_run(["cp", "-p", tmp, SB_CONFIG]).returncode != 0:
+        print("sing-box 配置写入失败")
+        os.unlink(tmp)
+        return 0
+    os.unlink(tmp)
+    if subprocess.run(["systemctl", "is-active", "sing-box"],
+                      capture_output=True, text=True).stdout.strip() == "active":
+        sudo_run(["systemctl", "restart", "sing-box"])
+        print("sing-box: 部署 %d 个出站（含 via-xray），服务已重启（备份 %s）"
+              % (len(outbounds), backup or "-"))
+    else:
+        print("sing-box: 配置已写入 %d 个出站，但服务未运行，未重启" % len(outbounds))
+    return len(outbounds)
+
+
+
+
+def collect_sub_urls(args):
+    """汇总订阅 URL：`-s` 参数 + subscriptions.txt（每行一个，# 注释），再展开
+    datepattern 模板并去重保序。
+
+    2026-10-12 起**不再读取 node.txt** 作为数据来源（需求 1）；`-n/--node-file`
+    仅为兼容旧命令行保留，不再参与取数。
+    """
+    urls = list(args.subscribe)
+    if os.path.exists(DEFAULT_SUB_FILE):
+        with open(DEFAULT_SUB_FILE, encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    urls.append(line)
+    urls = expand_datepatterns(urls)
+    return list(dict.fromkeys(urls))     # 去重保序
+
+
+def fetch_all_nodes(urls):
+    """并发拉取并解析全部订阅；内容相同的镜像只解析一次（SHA256 去重）。
+
+    返回 (nodes, sub_report)。不过滤协议支持——分区/跳过交由调用方按核心判定，
+    这样 tuic 等只有 sing-box 能跑的协议也能进入 sing-box 候选池。
+    """
+    nodes, sub_report = [], []
+    if urls:
+        print("订阅源 %d 个（-s / subscriptions.txt，datepattern 模板已展开）..."
+              % len(urls))
+    seen_bodies = {}
+
+    def _fetch_one(url):
+        return url, fetch_subscription(url)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=12) as ex:
+        for url, text in ex.map(_fetch_one, urls):
+            if text is None:
+                print("  ⚠️ 拉取失败: %s" % url)
+                sub_report.append({"url": url, "ok": False, "nodes": 0})
+                continue
+            digest = hashlib.sha256(text.encode("utf-8", "replace")).hexdigest()
+            if digest in seen_bodies:
+                print("  = %s: 与 %s 内容相同，跳过" % (url, seen_bodies[digest]))
+                sub_report.append({"url": url, "ok": True, "nodes": 0,
+                                   "duplicate_of": seen_bodies[digest]})
+                continue
+            seen_bodies[digest] = url
+            parsed = parse_subscription(text)
+            sub_report.append({"url": url, "ok": True, "nodes": len(parsed),
+                               "bytes": len(text)})
+            print("  ✔ %s: %d 个节点" % (url, len(parsed)))
+            nodes.extend(parsed)
+    return nodes, sub_report
+
+
+def test_engine(pool, args, engine, keep, label):
+    """对一侧核心跑完整测速流水线：快速筛选 -> 精确测量 -> 失败复测 -> 排名复测 -> 排名。
+
+    两段测速（--screen-timeout，默认开）：第一段用短超时 + 单次尝试把 ~99% 死节点
+    快速淘汰（不再等满 --timeout×attempts），只有存活者进第二段用完整参数精确测延迟。
+    候选池沿用 TCP 预扫描的握手延迟升序（不再洗牌），配合早停“找到够用的就停”。
+
+    返回 dict：results / kept / dropped_slow / usable / failed / stop_reason /
+    regions / reranked / elapsed / pool。engine ∈ {"xray", "sing-box"}。
+    """
+    # 早停目标：够用即可停。keep>0 时取 min(keep, 目标)，避免为凑够更多而多测。
+    stop_target = min(keep, args.early_stop_target) if keep else args.early_stop_target
+    if args.early_stop and stop_target:
+        print("[%s] 已启用提前结束：可用 ≥ %d 且延迟中位数 ≤ %.2fs 即停止剩余测速"
+              % (label, stop_target, args.early_stop_fast))
+
+    def early_stop(usable_lats):
+        if not args.early_stop or not stop_target:
+            return False
+        if len(usable_lats) < stop_target:
+            return False
+        lats = sorted(usable_lats)
+        return lats[len(lats) // 2] <= args.early_stop_fast
+
+    screen_timeout = args.screen_timeout if args.screen_timeout and args.screen_timeout > 0 else 0
+    two_stage = bool(screen_timeout) and screen_timeout < args.timeout
+
+    started = time.time()
+    if two_stage:
+        print("[%s] 两段测速：第一段 %.1fs 快速筛选（1 次尝试），存活者再用 %.1fs×%d 精确测量..."
+              % (label, screen_timeout, args.timeout, max(1, args.attempts)))
+        results, stop_reason = probe_all(pool, args.workers, screen_timeout, 1, 1,
+                                         early_stop=early_stop, engine=engine,
+                                         label=label + "-筛")
+        # 第二段：只对筛选存活者用完整参数精确测延迟（并发仍为 workers，求快）。
+        survivor_idx = [i for i, row in enumerate(results) if row["ok"]]
+        if survivor_idx:
+            print("[%s] 筛选存活 %d 个，进入精确测量..." % (label, len(survivor_idx)),
+                  file=sys.stderr, flush=True)
+            refined = probe_all([pool[i] for i in survivor_idx], args.workers,
+                                args.timeout, args.attempts, args.samples,
+                                engine=engine, label=label + "-精测")[0]
+            for idx, row in zip(survivor_idx, refined):
+                if row["ok"]:
+                    results[idx] = row          # 用精确测量结果覆盖筛选结果
+                else:
+                    # 精测罕见地失败（筛选已通过）：保留筛选的可用结论，只是延迟取筛选值。
+                    results[idx]["reason"] += " [精测未复现，沿用筛选]"
+    else:
+        print("[%s] 开始测速（每个节点起一个临时 %s + SOCKS 双204 探测，取样 %d 次）..."
+              % (label, "Xray" if engine == "xray" else "sing-box", max(1, args.samples)))
+        results, stop_reason = probe_all(pool, args.workers, args.timeout,
+                                         args.attempts, args.samples,
+                                         early_stop=early_stop, engine=engine, label=label)
+
+    failed_idx = [i for i, row in enumerate(results) if not row["ok"]]
+    if failed_idx and args.retest:
+        # 只复测“软失败”：跳过 HTTP 000（隧道完全不通的真死节点）、
+        # sing-box 结构性无法承载的节点，以及提前结束时根本没测过的节点
+        # （(提前结束，未测) 不是失败，是未测量——把它们塞进低并发复测等于
+        # 把提前结束省下的时间又还回去）。这两类低并发复测也救不回来，
+        # 却占了失败的绝大多数（实测几乎全是 HTTP 000）。
+        def _soft_failure(r):
+            why = r.get("reason") or ""
+            if "提前结束" in why:
+                return False   # 未测过，非失败，不复测
+            return ("HTTP 000" not in why) and ("无法承载" not in why)
+
+        soft_idx = [i for i in failed_idx if _soft_failure(results[i])]
+        hard_n = len(failed_idx) - len(soft_idx)
+        if args.retest_max and len(soft_idx) > args.retest_max:
+            # 极端情况下软失败也可能很多，加总量上限兜底，避免又拖慢。
+            soft_idx = soft_idx[:args.retest_max]
+        if soft_idx:
+            print("[%s] 对 %d 个软失败节点低并发复测（跳过 %d 个 HTTP 000/结构性失败，"
+                  "timeout=%ss，避免并发误判）..."
+                  % (label, len(soft_idx), hard_n, args.retest_timeout))
+            retest = probe_all([pool[i] for i in soft_idx],
+                               max(1, args.workers // 6), args.retest_timeout, 1,
+                               max(1, args.samples), engine=engine,
+                               label=label + "-retest")[0]
+            for idx, row in zip(soft_idx, retest):
+                if row["ok"]:
+                    row["reason"] += " (复测通过)"
+                    results[idx] = row
+        else:
+            print("[%s] 失败 %d 个，全为 HTTP 000/结构性失败，跳过复测"
+                  % (label, len(failed_idx)))
+
+    usable_rows = [r for r in results if r["ok"]]
+    reranked = 0
+    if args.rerank and keep and len(usable_rows) > keep:
+        lane = max(4, args.workers // 3)
+        print("[%s] 可用 %d > 保留 %d，对全部可用节点做一轮低并发统一复测"
+              "（并发 %d，timeout %ss），让取舍公平..." %
+              (label, len(usable_rows), keep, lane, args.retest_timeout))
+        reranked = refine_ranking(usable_rows, lane, args.retest_timeout,
+                                  max(1, args.samples), engine=engine)
+
+    kept, dropped_slow = rank_usable(results, keep)
+    usable = [r for r in results if r["ok"]]
+    failed = [r for r in results if not r["ok"]]
+    print("[%s] 测速完成，用时 %.1fs：可用 %d / %d，保留 %d 个%s"
+          % (label, time.time() - started, len(usable), len(pool), len(kept),
+             "" if not dropped_slow else "（淘汰较慢 %d 个）" % len(dropped_slow)))
+    for row in kept[:10]:
+        print("  %5.2fs  %-17s %-4s %s" % (
+            row["latency"], row["node"]["address"][:17], geo_tag(row["node"]),
+            row["node"]["scheme"]))
+    regions = {}
+    for row in kept:
+        regions[geo_tag(row["node"])] = regions.get(geo_tag(row["node"]), 0) + 1
+    print("[%s] 保留节点地区分布: %s" % (
+        label, ", ".join("%s=%d" % kv for kv in sorted(regions.items(), key=lambda kv: -kv[1])) or "-"))
+    return {"results": results, "kept": kept, "dropped_slow": dropped_slow,
+            "usable": usable, "failed": failed, "stop_reason": stop_reason,
+            "regions": regions, "reranked": reranked,
+            "elapsed": round(time.time() - started, 1), "pool": len(pool)}
+
+
+def singbox_only(args):
+    """--singbox-only：跳过 xray，只用 sing-box 核心独立测速并刷新 sing-box。
+
+    数据来源同主流程（subscriptions.txt + -s，不含 node.txt）。所有 sing-box 能跑
+    的候选（含 tuic 等 xray 跑不了的协议）都过一次 sing-box 双 204 探测，按延迟
+    取前 --sb-max 个交给 urltest 运行时自动选路。
+    """
+    urls = collect_sub_urls(args)
+    print("拉取 %d 个订阅源..." % len(urls))
+    all_nodes, _ = fetch_all_nodes(urls)
+    seen, pool = set(), []
+    for n in all_nodes:
+        if not singbox_supported(n):
+            continue
+        key = node_key(n)
+        if key not in seen:
+            seen.add(key)
+            pool.append(n)
+    print("sing-box 候选 %d 个" % len(pool))
+    tcp_dropped = 0
+    if args.tcpscan and pool:
+        _TCP_CACHE.clear()
+        before = len(pool)
+        pool = tcp_presize(pool, workers=args.prescan_workers,
+                           timeout=args.prescan_timeout,
+                           max_candidates=args.max_candidates)
+        tcp_dropped = before - len(pool)
+    out = test_engine(pool, args, "sing-box", args.sb_max, "sing-box")
+    deployed = deploy_singbox([r["node"] for r in out["kept"]], args.sb_max)
+    print("sing-box 部署完成: %d 个出站（TCP 预过滤 %d）" % (deployed, tcp_dropped))
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 # main
 # --------------------------------------------------------------------------- #
+def default_workers():
+    """并发测试数的自适应默认值。
+
+    测速几乎全是 IO 等待（起临时核心 + 等端口 + curl 双 204 走代理到境外），
+    CPU 占用很低，所以并发可以远超核数。这里取 CPU 核数的 8 倍，并用可用内存
+    做一道护栏：实测单个临时探测核心 RSS 约 30MB，按 64MB（约 2 倍余量）估，
+    确保开满也不至于把内存打爆。返回一个 [16, 192] 区间内的整数。
+    """
+    cpu = os.cpu_count() or 4
+    target = cpu * 8
+    # 内存护栏：可用内存(MB) / 64MB，至少给 16，最多 192。
+    try:
+        with open("/proc/meminfo") as fh:
+            for line in fh:
+                if line.startswith("MemAvailable:"):
+                    avail_mb = int(line.split()[1]) // 1024
+                    target = min(target, max(16, avail_mb // 64))
+                    break
+    except (OSError, ValueError):
+        pass
+    return max(16, min(target, 192))
+
+
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="测试本地 node.txt 里的节点，测速排名后只保留最快的 N 个到 Xray 配置。")
+        description="从订阅源拉取节点，xray 与 sing-box 各自独立测速，"
+                    "各自保留最快的前 N 个写进对应配置。")
     parser.add_argument("-n", "--node-file", default=DEFAULT_NODE_FILE,
-                        help="订阅文件，默认 %s" % DEFAULT_NODE_FILE)
-    parser.add_argument("-s", "--subscribe", action="append", default=[],
-                        metavar="URL",
-                        help="额外订阅 URL（可重复）；node.txt 里的 http(s):// 行与"
-                             "脚本旁的 subscriptions.txt（每行一个 URL，# 注释）也会"
-                             "被当作订阅拉取")
+                        help=argparse.SUPPRESS)  # 已废弃：不再从 node.txt 取数
+    parser.add_argument("-s", "--subscribe", action="append", default=[], metavar="URL",
+                        help="额外订阅 URL（可重复）；脚本旁的 subscriptions.txt"
+                             "（每行一个 URL，# 注释）也会被当作订阅拉取")
     parser.add_argument("-c", "--config", default=DEFAULT_CONFIG,
                         help="Xray 配置文件，默认 %s" % DEFAULT_CONFIG)
-    parser.add_argument("-w", "--workers", type=int, default=24, help="并发测试数，默认 24")
+    parser.add_argument("-w", "--workers", type=int, default=default_workers(),
+                        help="并发测试数；测速以 IO 等待为主，默认按 CPU 核数×8 并"
+                             "受可用内存护栏自适应，当前默认 %d" % default_workers())
     parser.add_argument("-t", "--timeout", type=float, default=8.0, help="单个节点探测超时秒数，默认 8")
     parser.add_argument("-a", "--attempts", type=int, default=2, help="每个节点尝试次数，默认 2")
     parser.add_argument("--samples", type=int, default=DEFAULT_SAMPLES,
                         help="测速取样次数（取最快一次），默认 %d" % DEFAULT_SAMPLES)
     parser.add_argument("-k", "--keep", type=int, default=DEFAULT_KEEP,
-                        help="只保留最快的前 N 个节点，0 = 不限制，默认 %d" % DEFAULT_KEEP)
+                        help="xray 侧只保留最快的前 N 个节点，0 = 不限制，默认 %d" % DEFAULT_KEEP)
     parser.add_argument("--max-nodes", type=int, default=None,
                         help=argparse.SUPPRESS)  # 旧参数名，等价于 --keep
     parser.add_argument("--keep-manual", dest="adopt", action="store_false",
-                        help="不接管手写的 proxy_* 出站（默认接管：和 node.txt 节点一起"
+                        help="不接管手写的 proxy_* 出站（默认接管：和订阅节点一起"
                              "测速，快则留、慢则删）")
     parser.add_argument("--append", action="store_true",
                         help="追加模式：保留本次运行前已有的脚本节点（默认替换为最新最快的一批）")
@@ -1163,8 +2017,53 @@ def parse_args(argv=None):
                         help="关闭“保留前的低并发统一复测”（默认开启：可用数超过保留数时会复测一轮）")
     parser.add_argument("--no-retest", dest="retest", action="store_false",
                         help="关闭“失败节点串行复测”（默认开启，避免并发误判）")
+    parser.add_argument("--no-tcpscan", dest="tcpscan", action="store_false",
+                        help="关闭 TCP 预扫描（默认开启：裸 TCP 连不上的端点"
+                             "直接淘汰，不起临时核心；hysteria2/tuic 豁免）")
+    parser.add_argument("--prescan-workers", type=int, default=500, metavar="N",
+                        help="TCP 预扫描并发数，默认 500（裸 TCP 连接 IO 密集，"
+                             "可远高于测速并发；xray/sing-box 两池共享扫描缓存）")
+    parser.add_argument("--prescan-timeout", type=float, default=1.5, metavar="SEC",
+                        help="TCP 预扫描单端点握手超时秒数，默认 1.5（正常握手 200–400ms，"
+                             "1.5s 足够，死端点不必等满更久）")
+    parser.add_argument("--screen-timeout", type=float, default=4.0, metavar="SEC",
+                         help="两段测速第一段(快速筛选)的超时秒数，默认 4；死节点在此"
+                              "被快速淘汰，只有存活者进第二段用 --timeout 精确测延迟。"
+                              "设为 0 关闭两段测速（退回单段 --timeout 全量测量）")
+    parser.add_argument("--max-candidates", type=int, default=0, metavar="N",
+                        help="TCP 预扫描后按握手延迟升序，只取前 N 个可扫描候选进入测速"
+                             "（hysteria2/tuic 豁免不受限）；0 = 不限制（默认），"
+                             "用来在候选很多时给测速预算封顶")
+    parser.add_argument("--no-early-stop", dest="early_stop", action="store_false",
+                        help="关闭提前结束（默认开启：可用数达到保留数且延迟"
+                             "中位数 ≤ --early-stop-fast 时，取消剩余未开测的节点）")
+    parser.add_argument("--early-stop-fast", type=float, default=1.5, metavar="SEC",
+                        help="提前结束的“够快”标准：可用节点延迟中位数阈值秒数，默认 1.5")
+    parser.add_argument("--early-stop-target", type=int, default=30, metavar="N",
+                        help="提前结束的目标可用节点数：可用数达到此值且延迟中位数 ≤ "
+                             "--early-stop-fast 就取消剩余未测节点（早停目标，默认 30，"
+                             "与 --keep 分开，可独立设小以更快收尾）")
+    parser.add_argument("--sb-max", type=int, default=DEFAULT_SB_MAX, metavar="N",
+                        help="sing-box 侧最多保留多少个节点出站（另加 via-xray），默认 %d"
+                             % DEFAULT_SB_MAX)
+    parser.add_argument("--no-singbox", dest="singbox", action="store_false",
+                        help="跳过 sing-box 测速与部署，只更新 xray")
+    parser.add_argument("--singbox-only", action="store_true",
+                        help="只用 sing-box 核心独立测速并刷新 sing-box，跳过 xray")
+    parser.add_argument("--watch", action="store_true",
+                        help="守护模式：循环体检已部署节点，健康数低于 --watch-min 时"
+                             "自动重新跑一次完整同步（维护可用节点数量）")
+    parser.add_argument("--watch-interval", type=int, default=300, metavar="SEC",
+                        help="守护模式每次体检间隔秒数，默认 300")
+    parser.add_argument("--watch-min", type=int, default=30, metavar="N",
+                        help="守护模式：任一核心健康节点少于此值就触发重同步，默认 30")
+    parser.add_argument("--watch-health-timeout", type=float, default=6.0, metavar="SEC",
+                        help="守护模式单节点体检超时秒数，默认 6")
     parser.add_argument("--retest-timeout", type=float, default=15.0,
                         help="复测时的单节点超时秒数，默认 15")
+    parser.add_argument("--retest-max", type=int, default=400, metavar="N",
+                        help="单侧最多复测多少个软失败节点（总量兜底上限，"
+                             "0 表示不限制），默认 400")
     parser.add_argument("--remove-old", action="store_true",
                         help=argparse.SUPPRESS)  # 早期参数名，默认行为已是替换式同步
     parser.add_argument("--prune-dead", action="store_true",
@@ -1183,52 +2082,15 @@ def parse_args(argv=None):
     return args
 
 
-def main(argv=None):
-    args = parse_args(argv)
-    if not os.path.exists(args.node_file):
-        raise SystemExit("找不到订阅文件: %s" % args.node_file)
+def run_sync(args):
+    """跑一次完整同步：拉订阅 -> 分区 -> xray / sing-box 各自独立测速 -> 写两侧配置。
 
-    with open(args.node_file, encoding="utf-8", errors="replace") as fh:
-        raw_lines = fh.readlines()
-    total_lines = sum(1 for line in raw_lines if line.strip())
-
-    # ---- 订阅 URL 汇总: -s 参数 + subscriptions.txt + node.txt 里的 http(s) 行 ----
-    sub_urls = list(args.subscribe)
-    if os.path.exists(DEFAULT_SUB_FILE):
-        with open(DEFAULT_SUB_FILE, encoding="utf-8", errors="replace") as fh:
-            for line in fh:
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    sub_urls.append(line)
-    sub_urls += [line.strip() for line in raw_lines
-                 if re.match(r"https?://", line.strip())]
-    sub_urls = list(dict.fromkeys(sub_urls))     # 去重保序
-
-    nodes, skipped = load_nodes_lines(
-        [line for line in raw_lines if not re.match(r"https?://", line.strip())])
-
-    # ---- 拉取并解析全部订阅 ----
-    sub_nodes, sub_report = [], []
-    if sub_urls:
-        print("订阅源 %d 个（-s / subscriptions.txt / node.txt 内 URL）..." % len(sub_urls))
-    for url in sub_urls:
-        text = fetch_subscription(url)
-        if text is None:
-            print("  ⚠️ 拉取失败: %s" % url)
-            sub_report.append({"url": url, "ok": False, "nodes": 0})
-            continue
-        parsed = parse_subscription(text)
-        good = []
-        for node in parsed:
-            reason = node_supported(node)
-            if reason:
-                skipped.append((reason, node["label"] or url))
-                continue
-            good.append(node)
-        sub_report.append({"url": url, "ok": True, "nodes": len(good),
-                           "bytes": len(text)})
-        print("  ✔ %s: %d 个节点" % (url, len(good)))
-        sub_nodes.extend(good)
+    返回 (rc, report)。dry-run 与写后校验失败也返回 report，便于守护模式复用。
+    """
+    urls = collect_sub_urls(args)
+    if not urls:
+        raise SystemExit("没有订阅源：subscriptions.txt 为空且未用 -s 指定")
+    all_nodes, sub_report = fetch_all_nodes(urls)
 
     # The config is read up front: hand-written proxy_* outbounds (proxy_sub1_…)
     # are adopted into the same pool, so they are measured and ranked next to the
@@ -1242,16 +2104,14 @@ def main(argv=None):
     if args.adopt:
         adopted, untouched_manual = adoptable_proxies(config)
 
-    pool = list(nodes)
-    known = {node_key(node) for node in pool}
-    sub_new = 0
-    for node in sub_nodes:
+    pool = []
+    known = set()
+    for node in all_nodes:
         key = node_key(node)
         if key in known:
             continue
         known.add(key)
         pool.append(node)
-        sub_new += 1
     adopted_new = []
     for tag, node in adopted:
         if node_key(node) in known:
@@ -1260,9 +2120,8 @@ def main(argv=None):
         pool.append(node)
         adopted_new.append(tag)
 
-    print("节点文件: %s" % args.node_file)
-    print("总行数 %d，本地节点 %d，订阅新增 %d，去重后待测 %d，不支持/跳过 %d"
-          % (total_lines, len(nodes), sub_new, len(pool), len(skipped)))
+    # ---- 分区：xray / sing-box 各自只测自己核心能真跑的节点（需求 3）----
+    xray_pool, sb_pool, skipped = partition_pool(pool)
     for reason, label in skipped:
         print("  跳过: %-45s %s" % (reason, label))
     if adopted:
@@ -1271,55 +2130,35 @@ def main(argv=None):
     if untouched_manual:
         print("保留（无法识别参数，未参与测速）: %s" % ", ".join(untouched_manual))
     if adopted_new:
-        print("其中 %d 个是 node.txt 里没有的，已加入候选池" % len(adopted_new))
-    print("候选池共 %d 个节点" % len(pool))
+        print("其中 %d 个是订阅里没有的，已加入候选池" % len(adopted_new))
+    print("候选池共 %d 个：xray 侧 %d，sing-box 侧 %d（两边都跑不了 %d）"
+          % (len(pool), len(xray_pool), len(sb_pool), len(skipped)))
 
-    print("开始测速（每个节点起一个临时 Xray + SOCKS 探测 %s，取样 %d 次）..."
-          % (PROBE_URL, max(1, args.samples)))
-    started = time.time()
-    results = probe_all(pool, args.workers, args.timeout, args.attempts,
-                        args.samples)
+    # ---- TCP 预扫描：死端点直接淘汰，省掉为它们起临时核心的开销 ----
+    tcp_dropped = 0
+    if args.tcpscan:
+        _TCP_CACHE.clear()   # 两池共享同一批端点的扫描缓存；每次同步开始时重置
+        before_x, before_s = len(xray_pool), len(sb_pool)
+        if xray_pool:
+            xray_pool = tcp_presize(xray_pool, workers=args.prescan_workers,
+                                    timeout=args.prescan_timeout,
+                                    max_candidates=args.max_candidates)
+        if sb_pool and args.singbox:
+            sb_pool = tcp_presize(sb_pool, workers=args.prescan_workers,
+                                  timeout=args.prescan_timeout,
+                                  max_candidates=args.max_candidates)
+        tcp_dropped = (before_x - len(xray_pool)) + (before_s - len(sb_pool))
 
-    failed_idx = [i for i, row in enumerate(results) if not row["ok"]]
-    if failed_idx and args.retest:
-        print("对 %d 个失败节点做低并发复测（timeout=%ss，避免并发误判）..."
-              % (len(failed_idx), args.retest_timeout))
-        retest = probe_all([pool[i] for i in failed_idx],
-                           max(1, args.workers // 6), args.retest_timeout, 1,
-                           max(1, args.samples))
-        for idx, row in zip(failed_idx, retest):
-            if row["ok"]:
-                row["reason"] += " (复测通过)"
-                results[idx] = row
+    # ---- xray 侧独立测速 ----
+    xout = test_engine(xray_pool, args, "xray", args.keep, "xray")
+    results, kept, dropped_slow = xout["results"], xout["kept"], xout["dropped_slow"]
+    working, failed, regions = xout["usable"], xout["failed"], xout["regions"]
+    stop_reason, reranked = xout["stop_reason"], xout["reranked"]
 
-    usable_rows = [r for r in results if r["ok"]]
-    reranked = 0
-    if args.rerank and args.keep and len(usable_rows) > args.keep:
-        lane = max(4, args.workers // 3)
-        print("可用 %d > 保留 %d，对全部可用节点做一轮低并发统一复测"
-              "（并发 %d，timeout %ss），让“最快 100”的取舍公平..." %
-              (len(usable_rows), args.keep, lane, args.retest_timeout))
-        reranked = refine_ranking(usable_rows, lane, args.retest_timeout,
-                                  max(1, args.samples))
-
-    kept, dropped_slow = rank_usable(results, args.keep)
-    working = [r["node"] for r in results if r["ok"]]
-    failed = [r for r in results if not r["ok"]]
-    print("测速完成，用时 %.1fs：可用 %d / %d"
-          % (time.time() - started, len(working), len(pool)))
-    print("保留最快 %d 个%s"
-          % (len(kept), "" if not dropped_slow
-             else "（淘汰速度较慢的 %d 个）" % len(dropped_slow)))
-    for row in kept[:10]:
-        print("  %5.2fs  %-17s %-4s %s" % (
-            row["latency"], row["node"]["address"][:17], geo_tag(row["node"]),
-            row["node"]["scheme"]))
-
-    regions = {}
-    for row in kept:
-        regions[geo_tag(row["node"])] = regions.get(geo_tag(row["node"]), 0) + 1
-    print("保留节点地区分布: %s" % (
-        ", ".join("%s=%d" % kv for kv in sorted(regions.items(), key=lambda kv: -kv[1]))))
+    # ---- sing-box 侧独立测速（需求 3：与 xray 分开跑，各自保留前 sb-max 个）----
+    sout = None
+    if args.singbox:
+        sout = test_engine(sb_pool, args, "sing-box", args.sb_max, "sing-box")
 
     config = read_config(args.config)
     outbounds = config.setdefault("outbounds", [])
@@ -1353,7 +2192,7 @@ def main(argv=None):
         print("重测配置里非脚本管理的 %d 个 proxy 出站..." % len(pairs))
         for (outbound, _node), row in zip(pairs, probe_all(
                 [n for _o, n in pairs], args.workers, args.timeout, args.attempts,
-                max(1, args.samples))):
+                max(1, args.samples))[0]):
             if not row["ok"]:
                 pruned_tags.append(outbound.get("tag", "?"))
                 outbounds.remove(outbound)
@@ -1363,12 +2202,14 @@ def main(argv=None):
 
     report = {
         "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "node_file": args.node_file,
         "config": args.config,
-        "total_lines": total_lines,
-        "candidates": len(nodes),
+        "candidates": len(pool),
         "subscription_sources": sub_report,
         "pool": len(pool),
+        "xray_pool": len(xray_pool),
+        "singbox_pool": len(sb_pool),
+        "tcp_dropped": tcp_dropped,
+        "early_stop": stop_reason,
         "adopted_manual": adopted_tags,
         "adopted_kept": adopted_kept,
         "adopted_dropped": adopted_dropped,
@@ -1399,14 +2240,29 @@ def main(argv=None):
         "pinned": args.config,
         "backup": "",
         "applied": False,
+        "singbox": None,
     }
+    if sout is not None:
+        report["singbox"] = {
+            "pool": sout["pool"],
+            "usable": len(sout["usable"]),
+            "kept": len(sout["kept"]),
+            "sb_max": args.sb_max,
+            "regions": sout["regions"],
+            "kept_nodes": [{"address": r["node"]["address"], "port": r["node"]["port"],
+                            "region": geo_tag(r["node"]), "latency": r["latency"],
+                            "scheme": r["node"]["scheme"]} for r in sout["kept"]],
+        }
 
     if args.dry_run:
-        print("\n[dry-run] 候选 %d，可用 %d，保留最快 %d，移除脚本/手写出站 %d，将写入 %d（配置未改动）"
-              % (len(pool), len(working), len(kept), len(removed), len(added)))
+        print("\n[dry-run] 候选 %d，xray 可用 %d 保留 %d，sing-box 可用 %s 保留 %s，"
+              "移除脚本/手写出站 %d，将写入 %d（配置未改动）"
+              % (len(pool), len(working), len(kept),
+                 len(sout["usable"]) if sout else 0, len(sout["kept"]) if sout else 0,
+                 len(removed), len(added)))
         print("正式应用请运行: %s" % os.path.join(SCRIPT_DIR, "apply.sh"))
         write_report(args.report, report)
-        return 0
+        return 0, report
 
     report["backup"] = write_config(args.config, config)
     report["applied"] = True
@@ -1416,7 +2272,6 @@ def main(argv=None):
         shutil.copy2(args.state, state_backup)
     save_state({
         "updated_at": report["generated_at"],
-        "node_file": args.node_file,
         "managed_tags": [o["tag"] for o in added],
         "latency": {o["tag"]: r["latency"] for o, r in zip(added, kept)},
     }, args.state)
@@ -1435,14 +2290,92 @@ def main(argv=None):
         report["post_write_check"] = False
         report["applied"] = False
         write_report(args.report, report)
-        return 1
+        return 1, report
     report["post_write_check"] = True
 
     if args.restart:
         report["restarted"] = restart_service()
 
+    # ---- sing-box：部署 sing-box 侧独立测速的前 sb-max 个，交给 urltest 运行时选路 ----
+    if not args.dry_run and args.singbox and sout is not None:
+        report["singbox_deployed"] = deploy_singbox(
+            [r["node"] for r in sout["kept"]], args.sb_max)
+
     write_report(args.report, report)
-    return 0
+    return 0, report
+
+
+def health_check(args):
+    """体检当前已部署的节点，返回 (xray_健康数, sing-box 健康数)。
+
+    直接从两侧配置里把脚本管理的出站反推成节点，用各自核心的低成本单次探测
+    量一遍（不做复测/排名），数出还能连通的数量。xray 的 observatory+leastPing、
+    sing-box 的 urltest 已在运行时持续“选快汰死”；这里只是判断“够不够多”，不够
+    就触发一次完整重同步（见 watch_loop）。
+    """
+    # xray 侧：配置里脚本管理的 proxy_* 出站
+    xray_ok = 0
+    try:
+        config = read_config(args.config)
+        owned = owned_tags(config, load_state(args.state))
+        nodes = [n for n in (outbound_to_node(o) for o in config.get("outbounds", [])
+                             if (o.get("tag") or "") in owned) if n]
+        if nodes:
+            rows = probe_all(nodes, max(4, args.workers // 2),
+                             args.watch_health_timeout, 1, 1,
+                             engine="xray", label="health-xray")[0]
+            xray_ok = sum(1 for r in rows if r["ok"])
+    except Exception as exc:  # 体检失败不致命，下次再来
+        print("[health] xray 体检异常: %r" % exc)
+
+    # sing-box 侧：配置里的 sb* 出站（tag 形如 sb1、sb2…）
+    sb_ok = 0
+    try:
+        sb_cfg = read_singbox_config()
+        sb_nodes = [n for n in (singbox_outbound_to_node(o)
+                                for o in sb_cfg.get("outbounds", [])
+                                if re.match(r"^sb\d+$", o.get("tag") or "")) if n]
+        if sb_nodes:
+            rows = probe_all(sb_nodes, max(4, args.workers // 2),
+                             args.watch_health_timeout, 1, 1,
+                             engine="sing-box", label="health-singbox")[0]
+            sb_ok = sum(1 for r in rows if r["ok"])
+    except Exception as exc:
+        print("[health] sing-box 体检异常: %r" % exc)
+
+    return xray_ok, sb_ok
+
+
+def watch_loop(args):
+    """守护模式：周期性体检两侧已部署节点；任一核心健康数 < --watch-min 就重跑一次
+    完整同步，把最新最快的节点补上去，从而“维护可用节点数量”（需求 4）。"""
+    print("守护模式启动：每 %ds 体检一次，任一核心健康数 < %d 触发完整重同步"
+          % (args.watch_interval, args.watch_min))
+    while True:
+        xray_ok, sb_ok = health_check(args)
+        print("[%s] 体检：xray 健康 %d，sing-box 健康 %d（阈值 %d）"
+              % (time.strftime("%Y-%m-%d %H:%M:%S"), xray_ok, sb_ok, args.watch_min))
+        if xray_ok < args.watch_min or sb_ok < args.watch_min:
+            print("健康节点不足，触发完整重同步...")
+            try:
+                rc, report = run_sync(args)
+                print("重同步完成 rc=%d：xray 保留 %d，sing-box 保留 %s"
+                      % (rc, len(report.get("kept", [])),
+                         (report.get("singbox") or {}).get("kept", "-")))
+            except SystemExit as exc:
+                print("重同步被 SystemExit 中断: %s" % exc)
+        time.sleep(args.watch_interval)
+
+
+def main(argv=None):
+    args = parse_args(argv)
+    if args.singbox_only:
+        return singbox_only(args)
+    if args.watch:
+        watch_loop(args)
+        return 0
+    rc, _report = run_sync(args)
+    return rc
 
 
 if __name__ == "__main__":
